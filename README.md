@@ -1,5 +1,5 @@
 # WASSERSTEIN DISTRIBUTIONALLY ROBUST OPTIMIZATION FOR FEDERATED LEARNING
-This repository implements all experiments in the paper the ** *WASSERSTEIN DISTRIBUTIONALLY ROBUST OPTIMIZATION FOR FEDERATED LEARNING*.
+This repository implements all experiments in the paper the *WASSERSTEIN DISTRIBUTIONALLY ROBUST OPTIMIZATION FOR FEDERATED LEARNING*.
   
 Authors: 
 
@@ -29,11 +29,11 @@ All dataset after downloading must be stored at folder \data
                               |----------------|-----------|---------------|--------------|
                               |                            | Convex        | Non Convex   |
                               |----------------|-----------|---------------|--------------|
-                              | Human Activity |           |               |              |
                               |                |           |               |              |
                               |                |           |               |              |
                               |                |           |               |              |
-                              | Vehicle Sensor |           |               |              |
+                              |                |           |               |              |
+                              |                |           |               |              |
                               |                |           |               |              |
                               |                |           |               |              |
                               |                |           |               |              |
