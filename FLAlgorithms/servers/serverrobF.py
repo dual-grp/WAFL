@@ -4,7 +4,7 @@ import torch.multiprocessing as mp
 
 from FLAlgorithms.users.userrobF import UserRobF
 from FLAlgorithms.servers.serverbase import Server
-from utils.model_utils import read_data, read_user_data
+from utils.model_utils import read_user_data
 import numpy as np
 
 # Implementation for FedAvg Server
@@ -31,17 +31,6 @@ class FedRob(Server):
             
         print("Number of users / total users:",num_users, " / " ,total_users)
         print("Finished creating FedAvg server.")
-
-    def send_grads(self):
-        assert (self.users is not None and len(self.users) > 0)
-        grads = []
-        for param in self.model.parameters():
-            if param.grad is None:
-                grads.append(torch.zeros_like(param.data))
-            else:
-                grads.append(param.grad)
-        for user in self.users:
-            user.set_grads(grads)
 
     def train(self):
         for glob_iter in range(self.num_glob_iters):

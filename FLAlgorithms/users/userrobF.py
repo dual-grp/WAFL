@@ -5,7 +5,7 @@ import os
 import json
 from torch.utils.data import DataLoader
 from FLAlgorithms.users.userbase import User
-
+import numpy as np 
 # Implementation for FedAvg clients
 
 class UserRobF(User):
@@ -21,44 +21,39 @@ class UserRobF(User):
 
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
 
-    def set_grads(self, new_grads):
-        if isinstance(new_grads, nn.Parameter):
-            for model_grad, new_grad in zip(self.model.parameters(), new_grads):
-                model_grad.data = new_grad.data
-        elif isinstance(new_grads, list):
-            for idx, model_grad in enumerate(self.model.parameters()):
-                model_grad.data = new_grads[idx]
-
     def train(self, epochs):
-        LOSS = 0
+        eps = 0.3
         self.model.train()
-        # Finding Z
+        X, y = self.get_next_train_batch()
+        X.requires_grad_(True)
+        output = self.model(X)
+        loss = self.loss(output, y)
+        if X.grad is not None:
+            X.grad.zero_()
+        gradX = torch.autograd.grad(eps*loss, X)
+        #X.requires_grad_(False)
+        X_adv = X + gradX[0] 
+        X_adv.requires_grad_(True)
+
+        # Step1 : Finding adversarial sample
         for epoch in range(1, self.local_epochs + 1):
-            self.model.train()
-            for X,y in self.trainloader:
-                X, y = X.to(self.device), y.to(self.device)#self.get_next_train_batch()
-                
-                output = self.model(X)
-                loss = self.loss(output, y)
-                grad = torch.autograd.grad(self.loss, X)
-                X.grad.data
-                loss.backward()
-                self.optimizer.step()
-        self.clone_model_paramenter(self.model.parameters(), self.local_model)
+            output = self.model(X_adv)
+            loss = self.loss(output, y)
+            if X_adv.grad is not None:
+                X_adv.grad.zero_()
+            gradX_avd1 = torch.autograd.grad(eps*loss, X_adv)
+            gradX_avd2 = torch.autograd.grad(torch.norm(X_adv-X)**2,X_adv)
+            gradX_avd = gradX_avd1[0] - gradX_avd2[0]
+            X_adv = X_adv + 1./np.sqrt(epoch+2)*gradX_avd
 
-        # local update
-        return LOSS
+        #X_adv.requires_grad_(False)
 
-    # def train(self, epochs):
-    #     LOSS = 0
-    #     self.model.train()
-    #     for epoch in range(1, self.local_epochs + 1):
-    #         self.model.train()
-    #         X, y = self.get_next_train_batch()
-    #         self.optimizer.zero_grad()
-    #         output = self.model(X)
-    #         loss = self.loss(output, y)
-    #         loss.backward()
-    #         self.optimizer.step()
-    #         self.clone_model_paramenter(self.model.parameters(), self.local_model)
-    #     return LOSS
+        # Step2 : Update local model using adversarial sample
+        for epoch in range(1, self.local_epochs + 1):
+            self.optimizer.zero_grad()
+            output = self.model(X_adv)
+            loss = self.loss(output, y)
+            loss.backward()
+            self.optimizer.step()
+            self.clone_model_paramenter(self.model.parameters(), self.local_model)
+        return 
