@@ -14,7 +14,7 @@ def args_parser():
     parser.add_argument("--batch_size", type=int, default=20)
     parser.add_argument("--learning_rate", type=float, default=0.01, help="Local learning rate")
     parser.add_argument("--beta", type=float, default=1, help="Average moving parameter for pFedMe, or Second learning rate of Per-FedAvg")
-    parser.add_argument("--L_k", type=float, default=1, help="Regularization term")
+    parser.add_argument("--L_k", type=float, default=0.3, help="Regularization term")
     parser.add_argument("--num_global_iters", type=int, default=200)
     parser.add_argument("--local_epochs", type=int, default = 5)
     parser.add_argument("--optimizer", type=str, default="SGD")
