@@ -317,42 +317,13 @@ def read_user_data(index,data,dataset):
     test_data = [(x, y) for x, y in zip(X_test, y_test)]
     return id, train_data, test_data
 
-class Metrics(object):
-    def __init__(self, clients, params):
-        self.params = params
-        num_rounds = params['num_rounds']
-        self.bytes_written = {c.id: [0] * num_rounds for c in clients}
-        self.client_computations = {c.id: [0] * num_rounds for c in clients}
-        self.bytes_read = {c.id: [0] * num_rounds for c in clients}
-        self.accuracies = []
-        self.train_accuracies = []
+def read_domain_data(dataset, target):
+    if(dataset == "fiveDigit"):
+        domain_all = ['mnist', 'mnistm', 'svhn', 'syn', 'usps']
+        domain_all.remove(target)
+        data_all = []
+        for domain_name in domain_all:
+            data_all.append(dataset_read(domain_name))
+    return data_all
 
-    def update(self, rnd, cid, stats):
-        bytes_w, comp, bytes_r = stats
-        self.bytes_written[cid][rnd] += bytes_w
-        self.client_computations[cid][rnd] += comp
-        self.bytes_read[cid][rnd] += bytes_r
-
-    def write(self):
-        metrics = {}
-        metrics['dataset'] = self.params['dataset']
-        metrics['num_rounds'] = self.params['num_rounds']
-        metrics['eval_every'] = self.params['eval_every']
-        metrics['learning_rate'] = self.params['learning_rate']
-        metrics['mu'] = self.params['mu']
-        metrics['num_epochs'] = self.params['num_epochs']
-        metrics['batch_size'] = self.params['batch_size']
-        metrics['accuracies'] = self.accuracies
-        metrics['train_accuracies'] = self.train_accuracies
-        metrics['client_computations'] = self.client_computations
-        metrics['bytes_written'] = self.bytes_written
-        metrics['bytes_read'] = self.bytes_read
-        metrics_dir = os.path.join('out', self.params['dataset'], 'metrics_{}_{}_{}_{}_{}.json'.format(
-            self.params['seed'], self.params['optimizer'], self.params['learning_rate'], self.params['num_epochs'], self.params['mu']))
-        #os.mkdir(os.path.join('out', self.params['dataset']))
-        if not os.path.exists('out'):
-            os.mkdir('out')
-        if not os.path.exists(os.path.join('out', self.params['dataset'])):
-            os.mkdir(os.path.join('out', self.params['dataset']))
-        with open(metrics_dir, 'w') as ouf:
-            json.dump(metrics, ouf)
+def dataset_read(domain_name):

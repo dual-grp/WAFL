@@ -9,15 +9,14 @@ import numpy as np
 # Implementation for FedAvg clients
 
 class UserRobF(User):
-    def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, beta, mu,
-                 local_epochs, optimizer):
-        super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, beta, mu,
-                         local_epochs)
+    def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, beta, mu, local_epochs):
+        super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, beta, mu, local_epochs)
 
         if(model[1] == "Mclr_CrossEntropy"):
             self.loss = nn.CrossEntropyLoss()
         else:
             self.loss = nn.NLLLoss()
+
         self.mu = mu
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
 

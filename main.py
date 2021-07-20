@@ -20,12 +20,12 @@ from utils.options import args_parser
 
 # Create an experiment with your api key:
 def main(experiment, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters,
-         local_epochs, optimizer, numusers, K, personal_learning_rate, times, commet, gpu, cutoff):
+         local_epochs, sub_user, numusers, K, personal_learning_rate, times, commet, gpu, cutoff):
     
     # Get device status: Check GPU or CPU
     device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
-
-    data = read_data(dataset) , dataset
+    
+    #data = read_data(dataset) , dataset
 
     for i in range(times):
         print("---------------Running time:------------",i)
@@ -69,12 +69,12 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, beta,
         if(algorithm == "FedAvg"):
             if(commet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedAvg(experiment, device, data, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff)
+            server = FedAvg(experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff)
         
         elif(algorithm == "FedRob"):
             if(commet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedRob(experiment, device, data, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff)
+            server = FedRob(experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff)
 
         else:
             print("Algorithm is invalid")

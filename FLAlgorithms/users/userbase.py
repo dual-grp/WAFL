@@ -84,9 +84,15 @@ class User:
             x, y = x.to(self.device), y.to(self.device)
             output = self.model(x)
             test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
-            #@loss += self.loss(output, y)
-            #print(self.id + ", Test Accuracy:", test_acc / y.shape[0] )
-            #print(self.id + ", Test Loss:", loss)
+        return test_acc, y.shape[0], test_acc / y.shape[0]
+    
+    def test_domain(self):
+        self.model.eval()
+        test_acc = 0
+        for x, y in self.testloaderfull:
+            x, y = x.to(self.device), y.to(self.device)
+            output = self.model(x)
+            test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
         return test_acc, y.shape[0], test_acc / y.shape[0]
 
     def train_error_and_loss(self):
@@ -101,36 +107,7 @@ class User:
             #print(self.id + ", Train Accuracy:", train_acc)
             #print(self.id + ", Train Loss:", loss)
         return train_acc, loss.data.tolist() , self.train_samples
-    
-    def test_persionalized_model(self):
-        self.model.eval()
-        test_acc = 0
-        self.update_parameters(self.persionalized_model_bar)
-        for x, y in self.testloaderfull:
-            x, y = x.to(self.device), y.to(self.device)
-            output = self.model(x)
-            test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
-            #@loss += self.loss(output, y)
-            #print(self.id + ", Test Accuracy:", test_acc / y.shape[0] )
-            #print(self.id + ", Test Loss:", loss)
-        self.update_parameters(self.local_model)
-        return test_acc, y.shape[0] , test_acc / y.shape[0]
-
-    def train_error_and_loss_persionalized_model(self):
-        self.model.eval()
-        train_acc = 0
-        loss = 0
-        self.update_parameters(self.persionalized_model_bar)
-        for x, y in self.trainloaderfull:
-            x, y = x.to(self.device), y.to(self.device)
-            output = self.model(x)
-            train_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
-            loss += self.loss(output, y)
-            #print(self.id + ", Train Accuracy:", train_acc)
-            #print(self.id + ", Train Loss:", loss)
-        self.update_parameters(self.local_model)
-        return train_acc, loss.data.tolist() , self.train_samples
-    
+     
     def get_next_train_batch(self):
         if(self.batch_size == 0):
             for X, y in self.trainloaderfull:
@@ -158,13 +135,6 @@ class User:
                 self.iter_testloader = iter(self.testloader)
                 (X, y) = next(self.iter_testloader)
             return (X.to(self.device), y.to(self.device))
-
-    def get_alk(self,user_list,dataset, index):
-        # temporary fix value of akl, all client has same value of akl
-        #akl = 0.25 # can set any value but need to modify eta accordingly
-        akl = 0.5
-        #akl = 1
-        return akl
         
     def save_model(self):
         model_path = os.path.join("models", self.dataset)

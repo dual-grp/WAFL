@@ -4,32 +4,28 @@ import torch.multiprocessing as mp
 
 from FLAlgorithms.users.useravg import UserAVG
 from FLAlgorithms.servers.serverbase import Server
-from utils.model_utils import read_data, read_user_data
+from utils.model_utils import read_data, read_domain_data
 import numpy as np
 
 # Implementation for FedAvg Server
 
 class FedAvg(Server):
-    def __init__(self, experiment, device, dataset,algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, num_users, times , cutoff):
-        super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, beta, L_k, num_glob_iters,local_epochs, optimizer, num_users, times)
+    def __init__(self, experiment, device, dataset,algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_users, num_users, times):
+        super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, beta, L_k, num_glob_iters,local_epochs, sub_users, num_users, times)
 
         # Initialize data for all  users
-        self.K = 0
-        
-        total_users = len(dataset[0][0])
-        self.sub_data = cutoff
-        if(self.sub_data):
-            randomList = self.get_partion(total_users)     
-        for i in range(total_users):
-            id, train , test = read_user_data(i, dataset[0], dataset[1])
-            if(self.sub_data):
-                if(i in randomList):
-                    train, test = self.get_data(train, test)
-            user = UserAVG(device, id, train, test, model, batch_size, learning_rate,beta,L_k, local_epochs, optimizer)
+        source = True
+
+        for i in range(num_users):
+            id, train , test = read_domain_data(i, dataset)
+            if(i == num_users - 1):
+                source = False
+
+            user = UserAVG(device, id, train, test, model, batch_size, learning_rate,beta,L_k, local_epochs, source)
             self.users.append(user)
             self.total_train_samples += user.train_samples
             
-        print("Number of users / total users:",num_users, " / " ,total_users)
+        print("Number of users / total users:",num_users, " / " ,num_users)
         print("Finished creating FedAvg server.")
 
     def send_grads(self):
@@ -54,7 +50,7 @@ class FedAvg(Server):
             # Evaluate model each interation
             self.evaluate()
 
-            self.selected_users = self.select_users(glob_iter,self.num_users)
+            self.selected_users = self.select_users(glob_iter, self.sub_users)
             
             #NOTE: this is required for the ``fork`` method to work
             for user in self.selected_users:
