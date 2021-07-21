@@ -178,9 +178,9 @@ class Server:
         self.rs_train_acc.append(train_acc)
         self.rs_train_loss.append(train_loss)
         #print("stats_train[1]",stats_train[3][0])
-        print("Average Global Accurancy: ", glob_acc)
-        print("Average Global Trainning Accurancy: ", train_acc)
-        print("Average Global Trainning Loss: ",train_loss)
+        print("Average Global Accurancy on all Source Domain : ", glob_acc)
+        print("Average Global Trainning Accurancy on all Source Domain: ", train_acc)
+        print("Average Global Trainning Loss on all Source Domain: ",train_loss)
 
     def evaluate_on_target(self):
         # evaluate 
