@@ -11,17 +11,17 @@ import numpy as np
 
 class FedRob(Server):
     def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_users, num_users, times):
-        super().__init__(experiment, device, dataset, algorithm, model[0], batch_size, learning_rate, beta, L_k, num_glob_iters,local_epochs, sub_users, num_users, times)
+        super().__init__(experiment, device, dataset, algorithm, model[0], batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_users, num_users, times)
 
         # Initialize data for all  users
-        source = True
-
+        domain_data = read_domain_data(dataset[0])
         for i in range(num_users):
-            id, train , test = read_domain_data(i, dataset)
-            user = UserRobF(device, id, train, test, model, batch_size, learning_rate,beta,L_k, local_epochs)
-            if(i == num_users - 1):
+            train , test = domain_data[i]
+            user = UserRobF(device, i, train, test, model, batch_size, learning_rate,beta,L_k, local_epochs)
+            if(i == dataset[1] or (i == num_users-1 and dataset[1] < 0)):
                 self.target_domain = user
                 user.target = True
+                continue
             self.users.append(user)
             self.total_train_samples += user.train_samples
             
@@ -38,6 +38,7 @@ class FedRob(Server):
 
             # Evaluate model each interation
             self.evaluate()
+            self.evaluate_on_target()
 
             self.selected_users = self.select_users(glob_iter,self.sub_users)
             

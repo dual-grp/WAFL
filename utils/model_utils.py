@@ -6,9 +6,12 @@ import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 from tqdm import trange
-import numpy as np
 import random
 from sklearn.model_selection import train_test_split
+from scipy.io import loadmat
+import sys
+from scipy.misc import imresize
+import _pickle as pkl
 
 IMAGE_SIZE = 28
 IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
@@ -317,13 +320,251 @@ def read_user_data(index,data,dataset):
     test_data = [(x, y) for x, y in zip(X_test, y_test)]
     return id, train_data, test_data
 
-def read_domain_data(dataset, target):
+def read_domain_data(dataset):
     if(dataset == "fiveDigit"):
         domain_all = ['mnist', 'mnistm', 'svhn', 'syn', 'usps']
-        domain_all.remove(target)
+        #domain_all.remove(domain_all[target])
         data_all = []
         for domain_name in domain_all:
             data_all.append(dataset_read(domain_name))
     return data_all
 
+base_dir = './data'
+
 def dataset_read(domain_name):
+    if domain_name == 'svhn':
+        train, test = load_svhn()
+    elif domain_name == 'mnist':
+        train, test = load_mnist()
+    elif domain_name == 'usps':
+        train, test = load_usps()
+    elif domain_name == 'mnistm':
+        train, test = load_mnistm()
+    elif domain_name == 'synth':
+        train, test = load_syntraffic()
+    elif domain_name == 'gtsrb':
+        train, test = load_gtsrb()
+    elif domain_name == 'syn':
+        train, test = load_syn()
+    else:
+        return 
+    return train, test
+
+def load_svhn():
+    svhn_train = loadmat(base_dir + '/fiveDigit/svhn_train_28x28.mat')
+    svhn_test = loadmat(base_dir + '/fiveDigit/svhn_test_28x28.mat')
+
+    svhn_train_im = svhn_train['X']
+    svhn_train_im = np.array(svhn_train_im.transpose(3, 2, 0, 1).astype(np.float32), dtype=np.float32).reshape(-1, 2352)
+    svhn_label = dense_to_one_hot(svhn_train['y'])
+
+    svhn_test_im = svhn_test['X']
+    svhn_test_im = np.array(svhn_test_im.transpose(3, 2, 0, 1).astype(np.float32), dtype=np.float32).reshape(-1, 2352)
+    svhn_label_test = dense_to_one_hot(svhn_test['y'])
+
+    svhn_all =     np.concatenate((svhn_train_im, svhn_test_im), axis=0)
+    mu = np.mean(svhn_all, 0)
+    sigma = np.std(svhn_all, 0)
+    svhn_train_im = (svhn_train_im.astype(np.float32) - mu)/(sigma+0.001)
+    svhn_test_im = (svhn_test_im.astype(np.float32) - mu)/(sigma+0.001)
+    svhn_train_im = svhn_train_im.reshape(-1, 3, 28, 28).astype(np.float32)
+    svhn_test_im = svhn_test_im.reshape(-1, 3, 28, 28).astype(np.float32)
+
+    svhn_train_im = svhn_train_im[:25000]
+    svhn_label = svhn_label[:25000]
+    svhn_test_im = svhn_test_im[:9000]
+    svhn_label_test = svhn_label_test[:9000]
+    print('svhn train X shape->',  svhn_train_im.shape)
+    print('svhn train y shape->',  svhn_label.shape)
+    print('svhn test X shape->',  svhn_test_im.shape)
+    print('svhn test y shape->', svhn_label_test.shape)
+
+    train_data = [(x, y) for x, y in zip(svhn_train_im, svhn_label)]
+    test_data = [(x, y) for x, y in zip(svhn_test_im, svhn_label_test)]
+
+    return train_data, test_data
+
+def load_mnist(scale=True, usps=False, all_use=False):
+    mnist_data = loadmat(base_dir + '/fiveDigit/mnist_data.mat')
+    mnist_train = np.array(mnist_data['train_28'], dtype=np.float32).reshape(-1, 784)
+    mnist_test =  np.array(mnist_data['test_28'], dtype=np.float32).reshape(-1, 784)
+    mnist_all =     np.concatenate((mnist_train, mnist_test), axis=0)
+
+    # normalized data
+    mu = np.mean(mnist_all, 0)
+    sigma = np.std(mnist_all, 0)
+    mnist_train = (mnist_train.astype(np.float32) - mu)/(sigma+0.001)
+    mnist_test = (mnist_test.astype(np.float32) - mu)/(sigma+0.001)
+
+    mnist_labels_train = mnist_data['label_train']
+    mnist_labels_test = mnist_data['label_test']
+
+
+    mnist_train = mnist_train.reshape(-1, 1, 28, 28).astype(np.float32)
+    mnist_test = mnist_test.reshape(-1, 1, 28, 28).astype(np.float32)
+
+    mnist_train = np.concatenate([mnist_train, mnist_train, mnist_train], 1)
+    mnist_test = np.concatenate([mnist_test, mnist_test, mnist_test], 1)
+    
+    train_label = np.argmax(mnist_labels_train, axis=1)
+    inds = np.random.permutation(mnist_train.shape[0])
+    mnist_train = mnist_train[inds]
+    train_label = train_label[inds]
+    test_label = np.argmax(mnist_labels_test, axis=1)
+    
+    mnist_train = mnist_train[:25000]
+    train_label = train_label[:25000]
+    mnist_test = mnist_test[:9000]
+    test_label = test_label[:9000]
+    # print('sssss')
+    print('mnist train X shape->',  mnist_train.shape)
+    print('mnist train y shape->',  train_label.shape)
+    print('mnist test X shape->',  mnist_test.shape)
+    print('mnist test y shape->', test_label.shape)
+
+    train_data = [(x, y) for x, y in zip(mnist_train, train_label)]
+    test_data = [(x, y) for x, y in zip(mnist_test, test_label)]
+    return train_data, test_data
+
+def load_usps():
+    dataset  = loadmat(base_dir + '/fiveDigit/usps_28x28.mat')
+    data_set = dataset['dataset']
+    img_train = data_set[0][0]
+    label_train = data_set[0][1]
+    img_test = data_set[1][0]
+    label_test = data_set[1][1]
+    inds = np.random.permutation(img_train.shape[0])
+    img_train = img_train[inds]
+    label_train = label_train[inds]
+    
+    #img_train = img_train * 255
+    #img_test = img_test * 255
+
+    #img_train = img_train.reshape((img_train.shape[0], 1, 28, 28))
+    #img_test = img_test.reshape((img_test.shape[0], 1, 28, 28))
+
+    label_train = dense_to_one_hot(label_train)
+    label_test = dense_to_one_hot(label_test)
+    img_train = np.concatenate([ img_train, img_train, img_train], 1)
+    img_test = np.concatenate([img_test, img_test,img_test],1)
+    
+    print('usps train X shape->',  img_train.shape)
+    print('usps train y shape->',  label_train.shape)
+    print('usps test X shape->',  img_test.shape)
+    print('usps test y shape->', label_test.shape)
+    train_data = [(x, y) for x, y in zip(img_train, label_train)]
+    test_data = [(x, y) for x, y in zip(img_test, label_test)]
+    return train_data, test_data
+
+def load_mnistm(scale=True, usps=False, all_use=False):
+    mnistm_data = loadmat(base_dir + '/fiveDigit/mnistm_with_label.mat')
+    mnistm_train =  np.array(mnistm_data['train'], dtype=np.float32).reshape(-1, 2352)
+    mnistm_test =  np.array(mnistm_data['test'], dtype=np.float32).reshape(-1, 2352)
+    mnistm_all =     np.concatenate((mnistm_train, mnistm_test), axis=0)
+
+    #normalized data
+    #mnistm_train = mnistm_train.transpose(0, 3, 1, 2).astype(np.float32)
+    #mnistm_test = mnistm_test.transpose(0, 3, 1, 2).astype(np.float32)
+
+    mu = np.mean(mnistm_all, 0)
+    sigma = np.std(mnistm_all, 0)
+    mnistm_train = (mnistm_train.astype(np.float32) - mu)/(sigma+0.001)
+    mnistm_test = (mnistm_test.astype(np.float32) - mu)/(sigma+0.001)
+
+    mnistm_train = mnistm_train.reshape(-1, 3, 28, 28).astype(np.float32)
+    mnistm_test = mnistm_test.reshape(-1, 3, 28, 28).astype(np.float32)
+
+    mnistm_labels_train = mnistm_data['label_train']
+    mnistm_labels_test = mnistm_data['label_test']
+
+    train_label = np.argmax(mnistm_labels_train, axis=1)
+    inds = np.random.permutation(mnistm_train.shape[0])
+    mnistm_train = mnistm_train[inds]
+    train_label = train_label[inds]
+    test_label = np.argmax(mnistm_labels_test, axis=1)
+    
+    mnistm_train = mnistm_train[:25000]
+    train_label = train_label[:25000]
+    mnistm_test = mnistm_test[:9000]
+    test_label = test_label[:9000]
+    print('mnist_m train X shape->',  mnistm_train.shape)
+    print('mnist_m train y shape->',  train_label.shape)
+    print('mnist_m test X shape->',  mnistm_test.shape)
+    print('mnist_m test y shape->', test_label.shape)
+    train_data = [(x, y) for x, y in zip(mnistm_train, train_label)]
+    test_data = [(x, y) for x, y in zip(mnistm_test, test_label)]
+    return train_data, test_data
+
+def load_syn(scale=True, usps=False, all_use=False):
+    syn_train = loadmat(base_dir + '/fiveDigit/synth_train_28x28.mat')
+    syn_test = loadmat(base_dir + '/fiveDigit/synth_test_28x28.mat')
+
+    syn_train_im = syn_train['X']
+    syn_train_im = np.array(syn_train_im.transpose(3, 2, 0, 1).astype(np.float32), dtype=np.float32).reshape(-1, 2352)
+    train_label = dense_to_one_hot(syn_train['y'])
+    
+    syn_test_im = syn_test['X']
+    syn_test_im = np.array(syn_test_im.transpose(3, 2, 0, 1).astype(np.float32), dtype=np.float32).reshape(-1, 2352)
+    test_label = dense_to_one_hot(syn_test['y'])
+
+    syn_all =     np.concatenate((syn_train_im, syn_test_im), axis=0)
+    mu = np.mean(syn_all, 0)
+    sigma = np.std(syn_all, 0)
+    syn_train_im = (syn_train_im.astype(np.float32) - mu)/(sigma+0.001)
+    syn_test_im = (syn_test_im.astype(np.float32) - mu)/(sigma+0.001)
+    
+    syn_train_im = syn_train_im.reshape(-1, 3, 28, 28).astype(np.float32)
+    syn_test_im = syn_test_im.reshape(-1, 3, 28, 28).astype(np.float32)
+
+    syn_train_im = syn_train_im[:25000]
+    train_label = train_label[:25000]
+    syn_test_im = syn_test_im[:9000]
+    test_label = test_label[:9000]
+
+    print('syn number train X shape->',  syn_train_im.shape)
+    print('syn number train y shape->',  train_label.shape)
+    print('syn number test X shape->',  syn_test_im.shape)
+    print('syn number test y shape->', test_label.shape)
+
+    train_data = [(x, y) for x, y in zip(syn_train_im, train_label)]
+    test_data = [(x, y) for x, y in zip(syn_test_im, test_label)]
+    return train_data, test_data
+
+def load_syntraffic():
+    data_source = pkl.load(open('../data/data_synthetic'))
+    source_train = np.random.permutation(len(data_source['image']))
+    data_s_im = data_source['image'][source_train[:len(data_source['image'])], :, :, :]
+    data_s_im_test = data_source['image'][source_train[len(data_source['image']) - 2000:], :, :, :]
+    data_s_label = data_source['label'][source_train[:len(data_source['image'])]]
+    data_s_label_test = data_source['label'][source_train[len(data_source['image']) - 2000:]]
+    data_s_im = data_s_im.transpose(0, 3, 1, 2).astype(np.float32)
+    data_s_im_test = data_s_im_test.transpose(0, 3, 1, 2).astype(np.float32)
+    train_data = [(x, y) for x, y in zip(data_s_im, data_s_label)]
+    test_data = [(x, y) for x, y in zip(data_s_im_test, data_s_label_test)]
+    return train_data, test_data
+
+def load_gtsrb():
+    data_target = pkl.load(open('../data/data_gtsrb'))
+    target_train = np.random.permutation(len(data_target['image']))
+    data_t_im = data_target['image'][target_train[:31367], :, :, :]
+    data_t_im_test = data_target['image'][target_train[31367:], :, :, :]
+    data_t_label = data_target['label'][target_train[:31367]] + 1
+    data_t_label_test = data_target['label'][target_train[31367:]] + 1
+    data_t_im = data_t_im.transpose(0, 3, 1, 2).astype(np.float32)
+    data_t_im_test = data_t_im_test.transpose(0, 3, 1, 2).astype(np.float32)
+    train_data = [(x, y) for x, y in zip(data_t_im, data_t_label)]
+    test_data = [(x, y) for x, y in zip(data_t_im_test, data_t_label_test)]
+    return train_data, test_data
+
+
+def dense_to_one_hot(labels_dense):
+    """Convert class labels from scalars to one-hot vectors."""
+    labels_one_hot = np.zeros((len(labels_dense),))
+    labels_dense = list(labels_dense)
+    for i, t in enumerate(labels_dense):
+        if t == 10:
+            t = 0
+            labels_one_hot[i] = t
+        else:
+            labels_one_hot[i] = t
+    return labels_one_hot

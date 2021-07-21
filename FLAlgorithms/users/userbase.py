@@ -18,6 +18,7 @@ class User:
         self.id = id  # integer
         self.train_samples = len(train_data)
         self.test_samples = len(test_data)
+        print("Len train and test",len(train_data),len(test_data))
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.beta = beta
@@ -28,19 +29,16 @@ class User:
             self.testloader =  DataLoader(test_data, self.test_samples,shuffle=True)
         else:
             self.trainloader = DataLoader(train_data, self.batch_size,shuffle=True)
-            if(len(train_data) < 200):
-                self.batch_size = int(len(test_data)/10)
             self.testloader =  DataLoader(test_data, self.batch_size,shuffle=True)
 
         self.testloaderfull = DataLoader(test_data, self.test_samples,shuffle=True)
         self.trainloaderfull = DataLoader(train_data, self.train_samples,shuffle=True)
+
         self.iter_trainloader = iter(self.trainloader)
         self.iter_testloader = iter(self.testloader)
 
         # those parameters are for persionalized federated learing.
         self.local_model = copy.deepcopy(list(self.model.parameters()))
-        #self.persionalized_model = copy.deepcopy(list(self.model.parameters()))
-        self.persionalized_model_bar = copy.deepcopy(list(self.model.parameters()))
     
     def set_parameters(self, model):
         for old_param, new_param, local_param in zip(self.model.parameters(), model.parameters(), self.local_model):
@@ -84,7 +82,7 @@ class User:
             x, y = x.to(self.device), y.to(self.device)
             output = self.model(x)
             test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
-        return test_acc, y.shape[0], test_acc / y.shape[0]
+        return test_acc, y.shape[0]
     
     def test_domain(self):
         self.model.eval()
@@ -93,7 +91,7 @@ class User:
             x, y = x.to(self.device), y.to(self.device)
             output = self.model(x)
             test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
-        return test_acc, y.shape[0], test_acc / y.shape[0]
+        return test_acc / y.shape[0]
 
     def train_error_and_loss(self):
         self.model.eval()
@@ -103,10 +101,10 @@ class User:
             x, y = x.to(self.device), y.to(self.device)
             output = self.model(x)
             train_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
-            loss += self.loss(output, y)
+            loss += self.loss(output, y.long())
             #print(self.id + ", Train Accuracy:", train_acc)
             #print(self.id + ", Train Loss:", loss)
-        return train_acc, loss.data.tolist() , self.train_samples
+        return train_acc, loss , self.train_samples
      
     def get_next_train_batch(self):
         if(self.batch_size == 0):
@@ -120,7 +118,7 @@ class User:
                 # restart the generator if the previous generator is exhausted.
                 self.iter_trainloader = iter(self.trainloader)
                 (X, y) = next(self.iter_trainloader)
-            return (X.to(self.device), y.to(self.device))
+            return (X.to(self.device), y.long().to(self.device))
     
     def get_next_test_batch(self):
         if(self.batch_size == 0):
@@ -134,7 +132,7 @@ class User:
                 # restart the generator if the previous generator is exhausted.
                 self.iter_testloader = iter(self.testloader)
                 (X, y) = next(self.iter_testloader)
-            return (X.to(self.device), y.to(self.device))
+            return (X.to(self.device), y.long().to(self.device))
         
     def save_model(self):
         model_path = os.path.join("models", self.dataset)

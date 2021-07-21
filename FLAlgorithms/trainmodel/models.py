@@ -209,3 +209,14 @@ class Mclr_Logistic(nn.Module):
         x = self.fc1(x)
         output = F.log_softmax(x, dim=1)
         return output
+
+class LogisticModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear = nn.Linear(2352, 10)
+        
+    def forward(self, xb):
+        xb = xb.reshape(-1, 2352)
+        out = self.linear(xb)
+        output = F.log_softmax(out, dim=1)
+        return output

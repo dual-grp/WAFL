@@ -20,7 +20,7 @@ from utils.options import args_parser
 
 # Create an experiment with your api key:
 def main(experiment, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters,
-         local_epochs, sub_user, numusers, K, personal_learning_rate, times, commet, gpu, cutoff):
+         local_epochs, sub_user, numusers, K, times, commet, gpu):
     
     # Get device status: Check GPU or CPU
     device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
@@ -42,7 +42,7 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, beta,
             elif(dataset == "EMNIST"):
                 model = Mclr_Logistic(784,62).to(device), model
             else:#(dataset == "Mnist"):
-                model = Mclr_Logistic().to(device), model
+                model = LogisticModel().to(device), model
 
         elif(model == "dnn"):
             if(dataset == "human_activity"):
@@ -59,22 +59,19 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, beta,
                 model = DNN2().to(device), model
         
         elif(model == "cnn"):
-            if(dataset == "Cifar10"):
-                model = CNNCifar(10).to(device), model
-            else:
-                return
+            model = CNNCifar(10).to(device), model
                 
         # select algorithm
 
         if(algorithm == "FedAvg"):
             if(commet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedAvg(experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff)
+            server = FedAvg(experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_user, numusers, i)
         
         elif(algorithm == "FedRob"):
             if(commet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedRob(experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff)
+            server = FedRob(experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_user, numusers, i)
 
         else:
             print("Algorithm is invalid")
@@ -133,7 +130,7 @@ if __name__ == "__main__":
 
     main(
         experiment= experiment,
-        dataset=args.dataset,
+        dataset= [args.dataset, args.target],
         algorithm = args.algorithm,
         model=args.model,
         batch_size=args.batch_size,
@@ -142,14 +139,12 @@ if __name__ == "__main__":
         L_k = args.L_k,
         num_glob_iters=args.num_global_iters,
         local_epochs=args.local_epochs,
-        optimizer= args.optimizer,
-        numusers = args.subusers,
+        sub_user = args.subusers,
+        numusers = args.numusers,
         K=args.K,
-        personal_learning_rate=args.personal_learning_rate,
         times = args.times,
         commet = args.commet,
-        gpu=args.gpu,
-        cutoff = args.cutoff
+        gpu=args.gpu
         )
 
 

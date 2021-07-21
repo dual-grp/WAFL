@@ -14,14 +14,14 @@ class FedAvg(Server):
         super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, beta, L_k, num_glob_iters,local_epochs, sub_users, num_users, times)
 
         # Initialize data for all  users
-        source = True
-
+        domain_data = read_domain_data(dataset[0])
         for i in range(num_users):
-            id, train , test = read_domain_data(i, dataset)
-            if(i == num_users - 1):
-                source = False
-
-            user = UserAVG(device, id, train, test, model, batch_size, learning_rate,beta,L_k, local_epochs, source)
+            train , test = domain_data[i]
+            user = UserAVG(device, i, train, test, model, batch_size, learning_rate,beta,L_k, local_epochs)
+            if(i == dataset[1] or (i == num_users-1 and dataset[1] < 0)):
+                self.target_domain = user
+                user.target = True
+                continue
             self.users.append(user)
             self.total_train_samples += user.train_samples
             
@@ -49,11 +49,12 @@ class FedAvg(Server):
 
             # Evaluate model each interation
             self.evaluate()
+            self.evaluate_on_target()
 
-            self.selected_users = self.select_users(glob_iter, self.sub_users)
+            #self.selected_users = self.select_users(glob_iter, self.sub_users)
             
             #NOTE: this is required for the ``fork`` method to work
-            for user in self.selected_users:
+            for user in self.users:
                 user.train(self.local_epochs)
 
             self.aggregate_parameters()

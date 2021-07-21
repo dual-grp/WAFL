@@ -2,7 +2,6 @@ import torch
 import os
 import numpy as np
 import h5py
-from utils.model_utils import Metrics
 import copy
 
 class Server:
@@ -25,7 +24,7 @@ class Server:
         self.beta = beta
         self.L_k = L_k
         self.algorithm = algorithm
-        self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc, self.rs_target_acc = [], [], [], [], [], [], [], []
+        self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc, self.rs_target_acc = [], [], [], []
         self.times = times
         self.experiment = experiment
         self.sub_data = 0
@@ -69,6 +68,8 @@ class Server:
         assert (self.users is not None and len(self.users) > 0)
         for user in self.users:
             user.set_parameters(self.model)
+        if(self.target_domain):
+            self.target_domain.set_parameters(self.model)
     
     def add_parameters(self, user, ratio):
         model = self.model.parameters()
@@ -81,9 +82,9 @@ class Server:
             param.data = torch.zeros_like(param.data)
         total_train = 0
         #if(self.num_users = self.to)
-        for user in self.selected_users:
+        for user in self.users:
             total_train += user.train_samples
-        for user in self.selected_users:
+        for user in self.users:
             self.add_parameters(user, user.train_samples / total_train)
     
     def save_model(self):
@@ -143,15 +144,13 @@ class Server:
         num_samples = []
         tot_correct = []
         losses = []
-        mean_accurancy = []
         for c in self.users:
-            ct, ns, ma = c.test()
+            ct, ns = c.test()
             tot_correct.append(ct*1.0)
             num_samples.append(ns)
-            mean_accurancy.append(ma)
         ids = [c.id for c in self.users]
 
-        return ids, num_samples, tot_correct, mean_accurancy
+        return ids, num_samples, tot_correct
 
     def train_error_and_loss(self):
         num_samples = []
@@ -173,22 +172,13 @@ class Server:
         stats_train = self.train_error_and_loss()
         glob_acc = np.sum(stats[2])*1.0/np.sum(stats[1])
         train_acc = np.sum(stats_train[2])*1.0/np.sum(stats_train[1])
-        glob_acc_avg = np.mean(stats[3])
         # train_loss = np.dot(stats_train[3], stats_train[1])*1.0/np.sum(stats_train[1])
-        #train_loss = sum([x * y for (x, y) in zip(stats_train[1], stats_train[3])]).item() / np.sum(stats_train[1])
-        train_loss = np.mean(list(stats_train[3]))
-        self.rs_avg_acc.append(glob_acc_avg)
+        train_loss = sum([x * y for (x, y) in zip(stats_train[1], stats_train[3])]).item() / np.sum(stats_train[1])
         self.rs_glob_acc.append(glob_acc)
         self.rs_train_acc.append(train_acc)
         self.rs_train_loss.append(train_loss)
-        if(self.experiment):
-            self.experiment.log_metric("glob_acc",glob_acc)
-            self.experiment.log_metric("train_acc",train_acc)
-            self.experiment.log_metric("train_loss",train_loss)
-            #self.experiment.log_metric("glob_avg",glob_acc_avg)
         #print("stats_train[1]",stats_train[3][0])
         print("Average Global Accurancy: ", glob_acc)
-        #print("Average Global AVG Accurancy: ", glob_acc_avg)
         print("Average Global Trainning Accurancy: ", train_acc)
         print("Average Global Trainning Loss: ",train_loss)
 

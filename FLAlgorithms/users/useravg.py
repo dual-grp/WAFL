@@ -12,10 +12,10 @@ class UserAVG(User):
     def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, beta, L_k, local_epochs):
         super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, beta, L_k, local_epochs)
 
-        if(model[1] == "Mclr_CrossEntropy"):
-            self.loss = nn.CrossEntropyLoss()
-        else:
-            self.loss = nn.NLLLoss()
+        #if(model[1] == "Mclr_CrossEntropy"):
+        self.loss = nn.CrossEntropyLoss()
+        #else:
+        #    self.loss = nn.NLLLoss()
 
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
 
@@ -23,13 +23,17 @@ class UserAVG(User):
         LOSS = 0
         self.model.train()
         for epoch in range(1, self.local_epochs + 1):
+            test_acc = 0 
             for X,y in self.trainloader:
-                X, y = X.to(self.device), y.to(self.device)#self.get_next_train_batch()
+                X, y = X.to(self.device), y.long().to(self.device)#self.get_next_train_batch()
                 self.optimizer.zero_grad()
                 output = self.model(X)
+                test_acc = (torch.sum(torch.argmax(output, dim=1) == y)).item()/len(y)
+                #print("----local test----",test_acc/len(y))
                 loss = self.loss(output, y)
                 loss.backward()
                 self.optimizer.step()
+                LOSS += loss
         self.clone_model_paramenter(self.model.parameters(), self.local_model)
         return LOSS
 
