@@ -125,7 +125,7 @@ class Server:
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         #alg = self.dataset[1] + "_" + self.algorithm
-        alg = self.dataset + "_" + self.algorithm
+        alg = str(self.dataset) + "_" + self.algorithm
         alg = alg + "_" + str(self.learning_rate) + "_" + str(self.beta) + "_" + str(self.L_k) + "_" + str(self.num_users) + "u" + "_" + str(self.batch_size) + "b" + "_" + str(self.local_epochs) 
         #if(self.sub_data):
         #    alg = alg + "_" + "subdata"
