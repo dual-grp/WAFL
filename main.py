@@ -1,12 +1,5 @@
 #!/usr/bin/env python
 from comet_ml import Experiment
-import h5py
-import matplotlib.pyplot as plt
-import numpy as np
-import argparse
-import importlib
-import random
-import os
 from FLAlgorithms.servers.serveravg import FedAvg
 from FLAlgorithms.servers.serverrobF import FedRob
 from utils.model_utils import read_data
@@ -101,7 +94,7 @@ if __name__ == "__main__":
         # Create an experiment with your api key:
         experiment = Experiment(
             api_key="VtHmmkcG2ngy1isOwjkm5sHhP",
-            project_name="multitask-for-test",
+            project_name="domain-adaptation",
             workspace="federated-learning-exp",
         )
 
