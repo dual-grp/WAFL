@@ -26,7 +26,7 @@ class FedRob(Server):
             self.total_train_samples += user.train_samples
             
         print("Number of users / total users:",num_users, " / " ,num_users)
-        print("Finished creating FedAvg server.")
+        print("Finished creating FedRob server.")
 
     def train(self):
         for glob_iter in range(self.num_glob_iters):

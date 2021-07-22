@@ -19,34 +19,31 @@ class UserAVG(User):
 
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
 
-    def train(self, epochs):
-        LOSS = 0
-        self.model.train()
-        for epoch in range(1, self.local_epochs + 1):
-            test_acc = 0 
-            for X,y in self.trainloader:
-                X, y = X.to(self.device), y.long().to(self.device)#self.get_next_train_batch()
-                self.optimizer.zero_grad()
-                output = self.model(X)
-                test_acc = (torch.sum(torch.argmax(output, dim=1) == y)).item()/len(y)
-                #print("----local test----",test_acc/len(y))
-                loss = self.loss(output, y)
-                loss.backward()
-                self.optimizer.step()
-                LOSS += loss
-        self.clone_model_paramenter(self.model.parameters(), self.local_model)
-        return LOSS
-
     # def train(self, epochs):
     #     LOSS = 0
     #     self.model.train()
     #     for epoch in range(1, self.local_epochs + 1):
-    #         self.model.train()
-    #         X, y = self.get_next_train_batch()
-    #         self.optimizer.zero_grad()
-    #         output = self.model(X)
-    #         loss = self.loss(output, y)
-    #         loss.backward()
-    #         self.optimizer.step()
-    #         self.clone_model_paramenter(self.model.parameters(), self.local_model)
+    #         for X,y in self.trainloader:
+    #             X, y = X.to(self.device), y.long().to(self.device)#self.get_next_train_batch()
+    #             self.optimizer.zero_grad()
+    #             output = self.model(X)
+    #             loss = self.loss(output, y)
+    #             loss.backward()
+    #             self.optimizer.step()
+    #             LOSS += loss
+    #     self.clone_model_paramenter(self.model.parameters(), self.local_model)
     #     return LOSS
+
+    def train(self, epochs):
+        LOSS = 0
+        self.model.train()
+        for epoch in range(1, self.local_epochs + 1):
+            self.model.train()
+            X, y = self.get_next_train_batch()
+            self.optimizer.zero_grad()
+            output = self.model(X)
+            loss = self.loss(output, y)
+            loss.backward()
+            self.optimizer.step()
+            self.clone_model_paramenter(self.model.parameters(), self.local_model)
+        return LOSS

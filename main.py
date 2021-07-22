@@ -58,12 +58,12 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, beta,
 
         if(algorithm == "FedAvg"):
             if(commet):
-                experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
+                experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
             server = FedAvg(experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_user, numusers, i)
         
         elif(algorithm == "FedRob"):
             if(commet):
-                experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
+                experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
             server = FedRob(experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_user, numusers, i)
 
         else:
@@ -108,13 +108,10 @@ if __name__ == "__main__":
             "L_k" : args.L_k,
             "num_glob_iters":args.num_global_iters,
             "local_epochs":args.local_epochs,
-            "optimizer": args.optimizer,
             "numusers": args.subusers,
             "K" : args.K,
-            "personal_learning_rate" : args.personal_learning_rate,
             "times" : args.times,
             "gpu": args.gpu,
-            "cut-off": args.cutoff
         }
         
         experiment.log_parameters(hyper_params)

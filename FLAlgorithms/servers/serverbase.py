@@ -88,7 +88,7 @@ class Server:
             self.add_parameters(user, user.train_samples / total_train)
     
     def save_model(self):
-        model_path = os.path.join("models", self.dataset[1])
+        model_path = os.path.join("models", self.dataset[0])
         if not os.path.exists(model_path):
             os.makedirs(model_path)
         torch.save(self.model, os.path.join(model_path, "server" + ".pt"))
