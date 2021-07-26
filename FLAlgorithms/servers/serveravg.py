@@ -14,13 +14,12 @@ class FedAvg(Server):
         super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, beta, L_k, num_glob_iters,local_epochs, sub_users, num_users, times)
 
         # Initialize data for all  users
-        domain_data = read_domain_data(dataset[0])
         for i in range(num_users):
-            train , test = domain_data[i]
+            train , test = dataset[2][i]
             user = UserAVG(device, i, train, test, model, batch_size, learning_rate,beta,L_k, local_epochs)
             if(i == dataset[1] or (i == num_users-1 and dataset[1] < 0)):
                 self.target_domain = user
-                user.target = True
+                user.set_target()
                 continue
             self.users.append(user)
             self.total_train_samples += user.train_samples

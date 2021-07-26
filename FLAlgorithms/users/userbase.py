@@ -24,6 +24,8 @@ class User:
         self.beta = beta
         self.L_k = L_k
         self.local_epochs = local_epochs
+        self.target = False
+
         if(self.batch_size == 0):
             self.trainloader = DataLoader(train_data, self.train_samples,shuffle=True)
             self.testloader =  DataLoader(test_data, self.test_samples,shuffle=True)
@@ -38,16 +40,15 @@ class User:
         self.iter_testloader = iter(self.testloader)
 
         # those parameters are for persionalized federated learing.
-        self.local_model = copy.deepcopy(list(self.model.parameters()))
-    
+        #self.local_model = copy.deepcopy(list(self.model.parameters()))
+
+    def set_target(self):
+        self.target = True
+
     def set_parameters(self, model):
-        for old_param, new_param, local_param in zip(self.model.parameters(), model.parameters(), self.local_model):
-            old_param.data = new_param.data.clone()
-            local_param.data = new_param.data.clone()
-    
-    def set_meta_parameters(self, model):
         for old_param, new_param in zip(self.model.parameters(), model.parameters()):
             old_param.data = new_param.data.clone()
+            #local_param.data = new_param.data.clone()
 
     def get_parameters(self):
         for param in self.model.parameters():

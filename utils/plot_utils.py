@@ -40,7 +40,7 @@ def get_training_data_value(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb=[
         algs_lbl[i] = algs_lbl[i]
     return glob_acc, train_acc, train_loss, glob_acc_avg
 
-def get_all_training_data_value(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb=0, learning_rate=0,beta=0,algorithms="", batch_size=0, dataset="", k= 0 , personal_learning_rate =0 ,times = 5, cutoff = 0):
+def get_all_training_data_value(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb=0, learning_rate=0,beta=0,algorithms="", batch_size=0, dataset="", k= 0, times = 5):
     train_acc = np.zeros((times, Numb_Glob_Iters))
     train_loss = np.zeros((times, Numb_Glob_Iters))
     glob_acc = np.zeros((times, Numb_Glob_Iters))
@@ -49,14 +49,12 @@ def get_all_training_data_value(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, la
     for i in range(times):
         string_learning_rate = str(learning_rate)  
         string_learning_rate = string_learning_rate + "_" +str(beta) + "_" +str(lamb)
-        if(algorithms == "pFedMe" or algorithms == "pFedMe_p"):
-            algorithms_list[i] = algorithms_list[i] + "_" + string_learning_rate + "_" + str(num_users) + "u" + "_" + str(batch_size) + "b" + "_" +str(loc_ep1) + "_"+ str(k)  + "_"+ str(personal_learning_rate)
-        elif(algorithms == "SSGD"):
-            algorithms_list[i] = algorithms_list[i] + "_" + string_learning_rate + "_" + str(num_users) + "u" + "_" + str(batch_size) + "b"  "_" +str(loc_ep1)  + "_"+ str(k)
-        else:
-            algorithms_list[i] = algorithms_list[i] + "_" + string_learning_rate + "_" + str(num_users) + "u" + "_" + str(batch_size) + "b"  "_" +str(loc_ep1)
-        if(cutoff):
-            algorithms_list[i] += "_" + "subdata"
+        # if(algorithms == "pFedMe" or algorithms == "pFedMe_p"):
+        #     algorithms_list[i] = algorithms_list[i] + "_" + string_learning_rate + "_" + str(num_users) + "u" + "_" + str(batch_size) + "b" + "_" +str(loc_ep1) + "_"+ str(k)
+        # elif(algorithms == "SSGD"):
+        #     algorithms_list[i] = algorithms_list[i] + "_" + string_learning_rate + "_" + str(num_users) + "u" + "_" + str(batch_size) + "b"  "_" +str(loc_ep1)  + "_"+ str(k)
+        # else:
+        algorithms_list[i] = algorithms_list[i] + "_" + string_learning_rate + "_" + str(num_users) + "u" + "_" + str(batch_size) + "b"  "_" +str(loc_ep1)
         algorithms_list[i] = algorithms_list[i] +  "_"  + str(i)
         train_acc[i, :], train_loss[i, :], glob_acc[i, :], avg_acc [i, :] = np.array(
             simple_read_data(dataset +"_"+ algorithms_list[i]))[:, :Numb_Glob_Iters]
@@ -73,10 +71,10 @@ def get_data_label_style(input_data = [], linestyles= [], algs_lbl = [], lamb = 
 
     return data, lstyles, labels
 
-def average_data(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb="", learning_rate="", beta="", algorithms="", batch_size=0, dataset = "", k = "", personal_learning_rate = "", times = 5, cutoff = 0):
+def average_data(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb="", learning_rate="", beta="", algorithms="", batch_size=0, dataset = "", k = "", times = 5):
     if(algorithms == "PerAvg"):
         algorithms = "PerAvg_p"
-    glob_acc, train_acc, train_loss, avg_acc = get_all_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms, batch_size, dataset, k, personal_learning_rate,times,cutoff)
+    glob_acc, train_acc, train_loss, avg_acc = get_all_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms, batch_size, dataset, k, times)
     glob_acc_data = np.average(glob_acc, axis=0)
     avg_acc_data = np.average(avg_acc, axis=0)
     train_acc_data = np.average(train_acc, axis=0)
@@ -96,7 +94,7 @@ def average_data(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb="", learning
     alg = dataset + "_" + algorithms
     alg = alg + "_" + str(learning_rate) + "_" + str(beta) + "_" + str(lamb) + "_" + str(num_users) + "u" + "_" + str(batch_size) + "b" + "_" + str(loc_ep1) + "_" + str(k)
     if(algorithms == "pFedMe" or algorithms == "pFedMe_p"):
-        alg = alg + "_" + str(k) + "_" + str(personal_learning_rate)
+        alg = alg + "_" + str(k) + "_" #+ str(personal_learning_rate)
     alg = alg + "_" + "avg"
     if (len(glob_acc) != 0 &  len(train_acc) & len(train_loss)) :
         with h5py.File("./results/"+'{}.h5'.format(alg,loc_ep1), 'w') as hf:

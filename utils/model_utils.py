@@ -321,13 +321,73 @@ def read_user_data(index,data,dataset):
     return id, train_data, test_data
 
 def read_domain_data(dataset):
+    data_all = []
     if(dataset == "fiveDigit"):
         domain_all = ['mnist', 'mnistm', 'svhn', 'syn', 'usps']
         #domain_all.remove(domain_all[target])
-        data_all = []
         for domain_name in domain_all:
             data_all.append(dataset_read(domain_name))
-    return data_all
+        return data_all
+    else:
+        if(dataset == "Cifar10"):
+            clients, groups, train_data, test_data = read_cifa_data()
+            return clients, groups, train_data, test_data
+
+        train_data_dir = os.path.join('data',dataset,'data', 'train')
+        test_data_dir = os.path.join('data',dataset,'data', 'test')
+        clients = []
+        groups = []
+        train_data = {}
+        test_data = {}
+
+        train_files = os.listdir(train_data_dir)
+        train_files = [f for f in train_files if f.endswith('.json')]
+        for f in train_files:
+            file_path = os.path.join(train_data_dir, f)
+            with open(file_path, 'r') as inf:
+                cdata = json.load(inf)
+            clients.extend(cdata['users'])
+            if 'hierarchies' in cdata:
+                groups.extend(cdata['hierarchies'])
+            train_data.update(cdata['user_data'])
+
+        test_files = os.listdir(test_data_dir)
+        test_files = [f for f in test_files if f.endswith('.json')]
+        for f in test_files:
+            file_path = os.path.join(test_data_dir, f)
+            with open(file_path, 'r') as inf:
+                cdata = json.load(inf)
+            test_data.update(cdata['user_data'])
+
+        clients = list(sorted(train_data.keys()))
+
+        for id in clients:
+            train_data_i = train_data[id]
+            test_data_i = test_data[id]
+            X_train, y_train, X_test, y_test = train_data_i['x'], train_data_i['y'], test_data_i['x'], test_data_i['y']
+            if(dataset == "Mnist"):
+                X_train, y_train, X_test, y_test = train_data_i['x'], train_data_i['y'], test_data_i['x'], test_data_i['y']
+                X_train = torch.Tensor(X_train).view(-1, NUM_CHANNELS, IMAGE_SIZE, IMAGE_SIZE).type(torch.float32)
+                y_train = torch.Tensor(y_train).type(torch.int64)
+                X_test = torch.Tensor(X_test).view(-1, NUM_CHANNELS, IMAGE_SIZE, IMAGE_SIZE).type(torch.float32)
+                y_test = torch.Tensor(y_test).type(torch.int64)
+            elif(dataset == "Cifar10"):
+                X_train, y_train, X_test, y_test = train_data_i['x'], train_data_i['y'], test_data_i['x'], test_data_i['y']
+                X_train = torch.Tensor(X_train).view(-1, NUM_CHANNELS_CIFAR, IMAGE_SIZE_CIFAR, IMAGE_SIZE_CIFAR).type(torch.float32)
+                y_train = torch.Tensor(y_train).type(torch.int64)
+                X_test = torch.Tensor(X_test).view(-1, NUM_CHANNELS_CIFAR, IMAGE_SIZE_CIFAR, IMAGE_SIZE_CIFAR).type(torch.float32)
+                y_test = torch.Tensor(y_test).type(torch.int64)
+            else:
+                X_train = torch.Tensor(X_train).type(torch.float32)
+                y_train = torch.Tensor(y_train).type(torch.int64)
+                X_test = torch.Tensor(X_test).type(torch.float32)
+                y_test = torch.Tensor(y_test).type(torch.int64)
+            
+            train_data_res = [(x, y) for x, y in zip(X_train, y_train)]
+            test_data_res = [(x, y) for x, y in zip(X_test, y_test)]
+            data_all.append([train_data_res,test_data_res])
+        return data_all
+        
 
 base_dir = './data'
 

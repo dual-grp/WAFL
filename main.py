@@ -2,7 +2,7 @@
 from comet_ml import Experiment
 from FLAlgorithms.servers.serveravg import FedAvg
 from FLAlgorithms.servers.serverrobF import FedRob
-from utils.model_utils import read_data
+from utils.model_utils import read_data, read_domain_data
 from FLAlgorithms.trainmodel.models import *
 from utils.plot_utils import *
 import torch
@@ -24,29 +24,29 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, beta,
         print("---------------Running time:------------",i)
         # Generate model
         if(model == "mclr"):
-            if(dataset == "human_activity"):
+            if(dataset[0] == "human_activity"):
                 model = Mclr_Logistic(561,6).to(device), model
-            elif(dataset == "gleam"):
+            elif(dataset[0] == "gleam"):
                 model = Mclr_Logistic(561,6).to(device), model
-            elif(dataset == "vehicle_sensor"):
+            elif(dataset[0] == "vehicle_sensor"):
                 model = Mclr_Logistic(100,2).to(device), model
-            elif(dataset == "Synthetic"):
+            elif(dataset[0] == "Synthetic"):
                 model = Mclr_Logistic(60,10).to(device), model
-            elif(dataset == "EMNIST"):
+            elif(dataset[0] == "EMNIST"):
                 model = Mclr_Logistic(784,62).to(device), model
             else:#(dataset == "Mnist"):
                 model = LogisticModel().to(device), model
 
         elif(model == "dnn"):
-            if(dataset == "human_activity"):
+            if(dataset[0] == "human_activity"):
                 model = DNN(561,100,12).to(device), model
-            elif(dataset == "gleam"):
+            elif(dataset[0] == "gleam"):
                 model = DNN(561,20,6).to(device), model
-            elif(dataset == "vehicle_sensor"):
+            elif(dataset[0] == "vehicle_sensor"):
                 model = DNN(100,20,2).to(device), model
-            elif(dataset == "Synthetic"):
+            elif(dataset[0] == "Synthetic"):
                 model = DNN(60,20,10).to(device), model
-            elif(dataset == "EMNIST"):
+            elif(dataset[0] == "EMNIST"):
                 model = DNN(784,200,62).to(device), model
             else:#(dataset == "Mnist"):
                 model = DNN2().to(device), model
@@ -55,16 +55,17 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, beta,
             model = CNNCifar(10).to(device), model
                 
         # select algorithm
+        domain_data = dataset[0], dataset[1], read_domain_data(dataset[0])
 
         if(algorithm == "FedAvg"):
             if(commet):
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedAvg(experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_user, numusers, i)
+            server = FedAvg(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_user, numusers, i)
         
         elif(algorithm == "FedRob"):
             if(commet):
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedRob(experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_user, numusers, i)
+            server = FedRob(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_user, numusers, i)
 
         else:
             print("Algorithm is invalid")
@@ -73,7 +74,7 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, beta,
         server.train()
         server.test()
 
-    average_data(num_users=numusers, loc_ep1=local_epochs, Numb_Glob_Iters=num_glob_iters, lamb=L_k,learning_rate=learning_rate, beta = beta, algorithms=algorithm, batch_size=batch_size, dataset=dataset, k = K, personal_learning_rate = personal_learning_rate,times = times, cutoff = cutoff)
+    average_data(num_users=numusers, loc_ep1=local_epochs, Numb_Glob_Iters=num_glob_iters, lamb=L_k,learning_rate=learning_rate, beta = beta, algorithms=algorithm, batch_size=batch_size, dataset=dataset[0], k = K,times = times)
 
 if __name__ == "__main__":
     args = args_parser()
@@ -81,6 +82,7 @@ if __name__ == "__main__":
     print("Summary of training process:")
     print("Algorithm: {}".format(args.algorithm))
     print("Batch size: {}".format(args.batch_size))
+    print("Robust parameter: {}".format(args.L_k))
     print("Learing rate       : {}".format(args.learning_rate))
     print("Average Moving       : {}".format(args.beta))
     print("Subset of users      : {}".format(args.subusers))

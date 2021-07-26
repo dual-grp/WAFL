@@ -17,7 +17,7 @@ def args_parser():
     parser.add_argument("--local_epochs", type=int, default=20)
     parser.add_argument("--subusers", type=float, default=1, help="partition of users")
     parser.add_argument("--algorithm", type=str, default="FedRob",choices=[ "FedAvg","FedRob"]) 
-    parser.add_argument("--numusers", type = float, default = 5, help="Total users")
+    parser.add_argument("--numusers", type=float, default = 5, help="Total users")
     parser.add_argument("--K", type=int, default=0, help="Computation steps")
     parser.add_argument("--times", type=int, default=1, help="running time")
     parser.add_argument("--commet", type=int, default=0, help="log data to commet")
