@@ -10,15 +10,15 @@ def simple_read_data(alg):
     print(alg)
     hf = h5py.File("./results/"+'{}.h5'.format(alg), 'r')
     rs_glob_acc = np.array(hf.get('rs_glob_acc')[:])
-    rs_avg_acc = np.array(hf.get('rs_avg_acc')[:])
+    rs_target_acc = np.array(hf.get('rs_target_acc')[:])
     rs_train_acc = np.array(hf.get('rs_train_acc')[:])
     rs_train_loss = np.array(hf.get('rs_train_loss')[:])
     #if(alg == "Mnist_Global_0.03_1_0.01_1.0u_20b_5_0_avg"):
     #    rs_train_loss[rs_train_loss > 0.05] = 0.049
-    for i in range(len(rs_avg_acc)):
-        if(rs_avg_acc[i] > 1):
-            rs_avg_acc[i] = rs_avg_acc[i]/100
-    return rs_train_acc, rs_train_loss, rs_glob_acc , rs_avg_acc
+    #for i in range(len(rs_avg_acc)):
+    #    if(rs_avg_acc[i] > 1):
+    #        rs_avg_acc[i] = rs_avg_acc[i]/100
+    return rs_train_acc, rs_train_loss, rs_glob_acc , rs_target_acc
 
 def get_training_data_value(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb=[], learning_rate=[],beta=[],algorithms_list=[], batch_size=[], dataset="", k= [] , personal_learning_rate = []):
     Numb_Algs = len(algorithms_list)
