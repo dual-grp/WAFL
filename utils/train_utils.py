@@ -2,6 +2,7 @@ from torchvision import datasets, transforms
 from FLAlgorithms.trainmodel.models import *
 
 def get_model(args):
+    
     if(args.model == "mclr"):
         if(args.dataset == "human_activity"):
             model = Mclr_Logistic(561,6).to(args.device)
@@ -11,6 +12,8 @@ def get_model(args):
             model = Mclr_Logistic(100,2).to(args.device)
         elif(args.dataset == "Synthetic"):
             model = Mclr_Logistic(60,10).to(args.device)
+        elif(args.dataset == "fiveDigit"):
+            model = LogisticModel().to(args.device)
         else:#(dataset == "Mnist"):
             model = Mclr_Logistic().to(args.device)
 
@@ -30,5 +33,5 @@ def get_model(args):
         if(args.dataset == "Cifar10"):
             model = CNNCifar().to(args.device)
     else:
-        pasexit('Error: unrecognized model')
-    return model
+        exit('Error: unrecognized model')
+    return model,args.model

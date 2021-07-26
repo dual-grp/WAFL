@@ -5,6 +5,7 @@ from FLAlgorithms.servers.serverrobF import FedRob
 from utils.model_utils import read_data, read_domain_data
 from FLAlgorithms.trainmodel.models import *
 from utils.plot_utils import *
+from utils.train_utils import get_model
 import torch
 torch.manual_seed(0)
 from utils.options import args_parser
@@ -12,7 +13,7 @@ from utils.options import args_parser
 # import comet_ml at the top of your file
 
 # Create an experiment with your api key:
-def main(experiment, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters,
+def main(experiment, dataset, algorithm, batch_size, learning_rate, beta, L_k, num_glob_iters,
          local_epochs, sub_user, numusers, K, times, commet, gpu):
     
     # Get device status: Check GPU or CPU
@@ -23,37 +24,8 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, beta,
     for i in range(times):
         print("---------------Running time:------------",i)
         # Generate model
-        if(model == "mclr"):
-            if(dataset[0] == "human_activity"):
-                model = Mclr_Logistic(561,6).to(device), model
-            elif(dataset[0] == "gleam"):
-                model = Mclr_Logistic(561,6).to(device), model
-            elif(dataset[0] == "vehicle_sensor"):
-                model = Mclr_Logistic(100,2).to(device), model
-            elif(dataset[0] == "Synthetic"):
-                model = Mclr_Logistic(60,10).to(device), model
-            elif(dataset[0] == "EMNIST"):
-                model = Mclr_Logistic(784,62).to(device), model
-            else:#(dataset == "Mnist"):
-                model = LogisticModel().to(device), model
-
-        elif(model == "dnn"):
-            if(dataset[0] == "human_activity"):
-                model = DNN(561,100,12).to(device), model
-            elif(dataset[0] == "gleam"):
-                model = DNN(561,20,6).to(device), model
-            elif(dataset[0] == "vehicle_sensor"):
-                model = DNN(100,20,2).to(device), model
-            elif(dataset[0] == "Synthetic"):
-                model = DNN(60,20,10).to(device), model
-            elif(dataset[0] == "EMNIST"):
-                model = DNN(784,200,62).to(device), model
-            else:#(dataset == "Mnist"):
-                model = DNN2().to(device), model
-        
-        elif(model == "cnn"):
-            model = CNNCifar(10).to(device), model
-                
+        args.device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
+        model =  get_model(args)
         # select algorithm
         domain_data = dataset[0], dataset[1], read_domain_data(dataset[0])
 
@@ -119,12 +91,10 @@ if __name__ == "__main__":
         experiment.log_parameters(hyper_params)
     else:
         experiment = 0
-
     main(
         experiment= experiment,
         dataset= [args.dataset, args.target],
         algorithm = args.algorithm,
-        model=args.model,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,
         beta = args.beta, 
