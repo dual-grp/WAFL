@@ -26,6 +26,8 @@ def get_model(args):
             model = DNN(100,20,2).to(args.device)
         elif(args.dataset == "Synthetic"):
             model = DNN(60,20,10).to(args.device)
+        elif(args.dataset == "fiveDigit"):
+            model = FeedFwdModel(2352,10).to(args.device)
         else:#(dataset == "Mnist"):
             model = DNN2().to(args.device)
         

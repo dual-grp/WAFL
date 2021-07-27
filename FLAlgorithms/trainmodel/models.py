@@ -220,3 +220,77 @@ class LogisticModel(nn.Module):
         out = self.linear(xb)
         output = F.log_softmax(out, dim=1)
         return output
+
+class CnnModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.network = nn.Sequential(
+            nn.Conv2d(3, 16, kernel_size=3, padding=1),
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            
+            nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            #nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),
+            #nn.BatchNorm2d(256),
+            nn.ReLU(),
+            
+            nn.Conv2d(256, 16, kernel_size=1, stride=1, padding=0),
+            nn.MaxPool2d(2, 2), # output: 16 x 14 x 14
+            nn.Dropout(p=0.25),
+
+            nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=0),
+            #nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=0),
+            #nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=0),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+
+            nn.Conv2d(256, 10, kernel_size=1, stride=1, padding=1),
+            #nn.MaxPool2d(2, 2), # output: 10 x 3 x 3
+
+            nn.AvgPool2d(kernel_size=6),           
+            nn.Flatten(),
+            nn.Softmax())
+        
+    def forward(self, xb):
+        return self.network(xb)
+
+class FeedFwdModel(nn.Module):
+    """Feedfoward neural network with 1 hidden layer"""
+    def __init__(self, in_size, out_size):
+        super().__init__()
+        # hidden layer
+        self.linear1 = nn.Linear(in_size, 16)
+        # hidden layer 2
+        self.linear2 = nn.Linear(16, 32)
+        # output layer
+        self.linear3 = nn.Linear(32, out_size)
+        
+    def forward(self, xb):
+        # Flatten the image tensors
+        out = xb.view(xb.size(0), -1)
+        # Get intermediate outputs using hidden layer 1
+        out = self.linear1(out)
+        # Apply activation function
+        out = F.relu(out)
+        # Get intermediate outputs using hidden layer 2
+        out = self.linear2(out)
+        # Apply activation function
+        out = F.relu(out)
+        # Get predictions using output layer
+        out = self.linear3(out)
+        return out
