@@ -293,4 +293,4 @@ class FeedFwdModel(nn.Module):
         out = F.relu(out)
         # Get predictions using output layer
         out = self.linear3(out)
-        return out
+        return F.log_softmax(out, dim=1)
