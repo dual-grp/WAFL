@@ -7,10 +7,8 @@ import torchvision
 import torchvision.transforms as transforms
 from tqdm import trange
 import random
-from sklearn.model_selection import train_test_split
 from scipy.io import loadmat
 import sys
-from scipy.misc import imresize
 import _pickle as pkl
 
 IMAGE_SIZE = 28
