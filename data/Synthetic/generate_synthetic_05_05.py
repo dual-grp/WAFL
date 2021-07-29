@@ -85,6 +85,15 @@ def main():
 
     train_path = "data/train/mytrain.json"
     test_path = "data/test/mytest.json"
+    train_path = './data/train/cifa_train.json'
+
+    dir_path = os.path.dirname(train_path)
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
+    dir_path = os.path.dirname(test_path)
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
 
     #X, y = generate_synthetic(alpha=0, beta=0, iid=0)     # synthetiv (0,0)
     X, y = generate_synthetic(alpha=0.5, beta=0.5, iid=0) # synthetic (0.5, 0.5)
