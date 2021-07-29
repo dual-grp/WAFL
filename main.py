@@ -2,7 +2,7 @@
 from comet_ml import Experiment
 from FLAlgorithms.servers.serveravg import FedAvg
 from FLAlgorithms.servers.serverrobF import FedRob
-from utils.model_utils import read_data, read_domain_data
+from utils.model_utils import read_domain_data
 from FLAlgorithms.trainmodel.models import *
 from utils.plot_utils import *
 from utils.train_utils import get_model
@@ -18,17 +18,15 @@ def main(experiment, dataset, algorithm, batch_size, learning_rate, beta, L_k, n
     
     # Get device status: Check GPU or CPU
     device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
+    args.device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
+    domain_data = dataset[0], dataset[1], read_domain_data(dataset[0])
     
-    #data = read_data(dataset) , dataset
-
     for i in range(times):
         print("---------------Running time:------------",i)
         # Generate model
-        args.device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
         model =  get_model(args)
-        # select algorithm
-        domain_data = dataset[0], dataset[1], read_domain_data(dataset[0])
 
+        # select algorithm
         if(algorithm == "FedAvg"):
             if(commet):
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
@@ -78,12 +76,11 @@ if __name__ == "__main__":
             "model":args.model,
             "batch_size":args.batch_size,
             "learning_rate":args.learning_rate,
-            "beta" : args.beta, 
+            "target" : args.target, 
             "L_k" : args.L_k,
             "num_glob_iters":args.num_global_iters,
             "local_epochs":args.local_epochs,
             "numusers": args.subusers,
-            "K" : args.K,
             "times" : args.times,
             "gpu": args.gpu,
         }
