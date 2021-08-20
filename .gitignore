@@ -1,0 +1,13 @@
+*.pkl
+*.pyc
+*.torch
+*.npy
+*.csv
+*.eps
+*.swp
+*.pdf
+*.mat
+.vscode/
+test/
+results/
+__pycache__
