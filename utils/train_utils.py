@@ -28,6 +28,8 @@ def get_model(args):
             model = DNN(60,20,10).to(args.device)
         elif(args.dataset == "fiveDigit"):
             model = FeedFwdModel(2352,10).to(args.device)
+            #model = DANCNNModel().to(args.device)
+            
         else:#(dataset == "Mnist"):
             model = DNN2().to(args.device)
         

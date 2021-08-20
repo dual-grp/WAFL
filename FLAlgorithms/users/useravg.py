@@ -5,7 +5,7 @@ import os
 import json
 from torch.utils.data import DataLoader
 from FLAlgorithms.users.userbase import User
-
+import numpy as np
 # Implementation for FedAvg clients
 
 class UserAVG(User):
@@ -25,9 +25,10 @@ class UserAVG(User):
         for epoch in range(1, self.local_epochs + 1):
             for X,y in self.trainloader:
                 X, y = X.to(self.device), y.long().to(self.device)#self.get_next_train_batch()
+                #X  = self.pgd_linf(X = X, y = y)
                 self.optimizer.zero_grad()
-                output = self.model(X)
-                loss = self.loss(output, y)
+                #output = self.model(X)
+                loss = self.loss(self.model(X), y)
                 loss.backward()
                 self.optimizer.step()
                 LOSS += loss

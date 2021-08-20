@@ -6,7 +6,7 @@ from FLAlgorithms.users.useravg import UserAVG
 from FLAlgorithms.servers.serverbase import Server
 from utils.model_utils import read_data, read_domain_data
 import numpy as np
-
+import copy
 # Implementation for FedAvg Server
 
 class FedAvg(Server):
@@ -14,6 +14,15 @@ class FedAvg(Server):
         super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, beta, L_k, num_glob_iters,local_epochs, sub_users, num_users, times)
 
         # Initialize data for all  users
+        if(num_users == 1):
+            i = 0
+            train , test = dataset[2][i]
+            user = UserAVG(device, i, train, test, model, batch_size, learning_rate, beta, L_k, local_epochs)
+            self.target_domain = user
+            user.set_target()
+            self.users.append(user)
+            self.total_train_samples += user.train_samples
+            return
         for i in range(num_users):
             train , test = dataset[2][i]
             user = UserAVG(device, i, train, test, model, batch_size, learning_rate,beta,L_k, local_epochs)
@@ -24,7 +33,7 @@ class FedAvg(Server):
             self.users.append(user)
             self.total_train_samples += user.train_samples
             
-        print("Number of users / total users:",num_users, " / " ,num_users)
+        print("Number of users / total users:",int(sub_users * num_users), " / " ,num_users)
         print("Finished creating FedAvg server.")
 
     def send_grads(self):
@@ -43,20 +52,21 @@ class FedAvg(Server):
             if(self.experiment):
                 self.experiment.set_epoch( glob_iter + 1)
             print("-------------Round number: ",glob_iter, " -------------")
-            #loss_ = 0
+
             self.send_parameters()
 
             # Evaluate model each interation
             self.evaluate()
             self.evaluate_on_target()
+            self.evaluate_robust()
 
             #self.selected_users = self.select_users(glob_iter, self.sub_users)
-            
-            #NOTE: this is required for the ``fork`` method to work
-            for user in self.users:
+            self.selected_users = self.select_users(glob_iter, self.sub_users)
+
+            for user in self.selected_users:
                 user.train(self.local_epochs)
 
-            self.aggregate_parameters()
+            self.aggregate_parameters(self.selected_users)
             
         self.save_results()
         self.save_model()

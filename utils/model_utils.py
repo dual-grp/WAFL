@@ -322,10 +322,16 @@ def read_domain_data(dataset):
     data_all = []
     if(dataset == "fiveDigit"):
         domain_all = ['mnist', 'mnistm', 'svhn', 'syn', 'usps']
-        #domain_all.remove(domain_all[target])
         for domain_name in domain_all:
             data_all.append(dataset_read(domain_name))
         return data_all
+
+    elif(dataset == "Office_Caltech10"):
+        domain_all = ['amazon', 'dslr', 'webcam', 'Caltech10']
+        for domain_name in domain_all:
+            data_all.append(dataset_read(domain_name))
+        return data_all
+
     else:
         if(dataset == "Cifar10"):
             clients, groups, train_data, test_data = read_cifa_data()
@@ -404,9 +410,53 @@ def dataset_read(domain_name):
         train, test = load_gtsrb()
     elif domain_name == 'syn':
         train, test = load_syn()
+    elif domain_name == 'amazon':
+        train, test = load_amazon()
+    elif domain_name == 'dslr':
+        train, test = load_dslr()
+    elif domain_name == 'webcam':
+        train, test = load_webcam()
+    elif domain_name == 'Caltech10':
+        train, test = load_caltech()
     else:
         return 
     return train, test
+
+def load_amazon():
+    #amazon_train = loadmat(base_dir + '/Office_Caltech10/amazon_SURF_L10.mat')
+    #amazon_test = loadmat(base_dir + '/Office_Caltech10/amazon_decaf.mat')
+    amazon_train = loadmat(base_dir + '/Office_Caltech10/caltech_decaf.mat')
+    amazon_test = loadmat(base_dir + '/Office_Caltech10/Caltech10_SURF_L10.mat')
+
+    amazon_train_im = amazon_train['X']
+    amazon_train_im = np.array(amazon_train_im.transpose(3, 2, 0, 1).astype(np.float32), dtype=np.float32).reshape(-1, 2352)
+    amazon_label = dense_to_one_hot(amazon_train['y'])
+
+    amazon_test_im = amazon_test['X']
+    amazon_test_im = np.array(amazon_test_im.transpose(3, 2, 0, 1).astype(np.float32), dtype=np.float32).reshape(-1, 2352)
+    amazon_label_test = dense_to_one_hot(amazon_test['y'])
+
+    amazon_all =     np.concatenate((amazon_train_im, amazon_test_im), axis=0)
+    mu = np.mean(amazon_all, 0)
+    sigma = np.std(amazon_all, 0)
+    amazon_train_im = (amazon_train_im.astype(np.float32) - mu)/(sigma+0.001)
+    amazon_test_im = (amazon_test_im.astype(np.float32) - mu)/(sigma+0.001)
+    amazon_train_im = amazon_train_im.reshape(-1, 3, 28, 28).astype(np.float32)
+    amazon_test_im = amazon_test_im.reshape(-1, 3, 28, 28).astype(np.float32)
+
+    amazon_train_im = amazon_train_im[:25000]
+    amazon_label = amazon_label[:25000]
+    amazon_test_im = amazon_test_im[:9000]
+    amazon_label_test = amazon_label_test[:9000]
+    print('amazon train X shape->',  amazon_train_im.shape)
+    print('amazon train y shape->',  amazon_label.shape)
+    print('amazon test X shape->',  amazon_test_im.shape)
+    print('amazon test y shape->', amazon_label_test.shape)
+
+    train_data = [(x, y) for x, y in zip(amazon_train_im, amazon_label)]
+    test_data = [(x, y) for x, y in zip(amazon_test_im, amazon_label_test)]
+
+    return train_data, test_data
 
 def load_svhn():
     svhn_train = loadmat(base_dir + '/fiveDigit/svhn_train_28x28.mat')
