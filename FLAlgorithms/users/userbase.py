@@ -11,7 +11,7 @@ class User:
     """
     Base class for users in federated learning.
     """
-    def __init__(self, device, id, train_data, test_data, model, batch_size = 0, learning_rate = 0, robust = 0 , L_k = 0, local_epochs = 0):
+    def __init__(self, device, id, train_data, test_data, model, batch_size = 0, learning_rate = 0, robust = 0 , gamma = 0, local_epochs = 0):
         # from fedprox
         self.device = device
         self.model = copy.deepcopy(model)
@@ -22,7 +22,7 @@ class User:
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.robust = robust
-        self.L_k = L_k
+        self.gamma = gamma
         self.local_epochs = local_epochs
         self.target = False
 
@@ -184,7 +184,7 @@ class User:
         X_adv.requires_grad_(True)
         for t in range(num_iter):
             loss1 = self.loss(self.model(X_adv), y)
-            loss2 = 0.5 * self.mu * torch.norm(X_adv - X)**2 / len(X_adv)
+            loss2 = 0.5 * self.gamma * torch.norm(X_adv - X)**2 / len(X_adv)
             loss = loss1 - loss2
             loss.backward()
             X_adv.data = (X_adv.data + len(X_adv) * X_adv.grad)

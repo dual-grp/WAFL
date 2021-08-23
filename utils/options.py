@@ -12,7 +12,7 @@ def args_parser():
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--learning_rate", type=float, default=0.001, help="Local learning rate")
     parser.add_argument("--robust", type=int, default=1, help="robust training option")
-    parser.add_argument("--L_k", type=float, default=0.1, help="Regularization term")
+    parser.add_argument("--gamma", type=float, default=0.1, help="Regularization term")
     parser.add_argument("--num_global_iters", type=int, default=200)
     parser.add_argument("--local_epochs", type=int, default=2)
     parser.add_argument("--subusers", type=float, default=0.1, help="partition of users")
