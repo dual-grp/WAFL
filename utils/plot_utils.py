@@ -20,7 +20,7 @@ def simple_read_data(alg):
     #        rs_avg_acc[i] = rs_avg_acc[i]/100
     return rs_train_acc, rs_train_loss, rs_glob_acc , rs_target_acc
 
-def get_training_data_value(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb=[], learning_rate=[],beta=[],algorithms_list=[], batch_size=[], dataset="", k= [] , personal_learning_rate = []):
+def get_training_data_value(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb=[], learning_rate=[],robust=[],algorithms_list=[], batch_size=[], dataset="", k= [] , personal_learning_rate = []):
     Numb_Algs = len(algorithms_list)
     train_acc = np.zeros((Numb_Algs, Numb_Glob_Iters))
     train_loss = np.zeros((Numb_Algs, Numb_Glob_Iters))
@@ -29,7 +29,7 @@ def get_training_data_value(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb=[
     algs_lbl = algorithms_list.copy()
     for i in range(Numb_Algs):
         string_learning_rate = str(learning_rate[i])  
-        string_learning_rate = string_learning_rate + "_" +str(beta[i]) + "_" +str(lamb[i])
+        string_learning_rate = string_learning_rate + "_" +str(robust[i]) + "_" +str(lamb[i])
         if(algorithms_list[i] == "pFedMe" or algorithms_list[i] == "pFedMe_p"):
             algorithms_list[i] = algorithms_list[i] + "_" + string_learning_rate + "_" + str(num_users) + "u" + "_" + str(batch_size[i]) + "b" + "_" +str(loc_ep1[i]) + "_"+ str(k[i])  + "_"+ str(personal_learning_rate[i])
         else:
@@ -40,7 +40,7 @@ def get_training_data_value(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb=[
         algs_lbl[i] = algs_lbl[i]
     return glob_acc, train_acc, train_loss, glob_acc_avg
 
-def get_all_training_data_value(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb=0, learning_rate=0,beta=0,algorithms="", batch_size=0, dataset="", k= 0, times = 5):
+def get_all_training_data_value(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb=0, learning_rate=0,robust=0,algorithms="", batch_size=0, dataset="", k= 0, times = 5):
     train_acc = np.zeros((times, Numb_Glob_Iters))
     train_loss = np.zeros((times, Numb_Glob_Iters))
     glob_acc = np.zeros((times, Numb_Glob_Iters))
@@ -48,7 +48,7 @@ def get_all_training_data_value(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, la
     algorithms_list  = [algorithms] * times
     for i in range(times):
         string_learning_rate = str(learning_rate)  
-        string_learning_rate = string_learning_rate + "_" +str(beta) + "_" +str(lamb)
+        string_learning_rate = string_learning_rate + "_" +str(robust) + "_" +str(lamb)
         # if(algorithms == "pFedMe" or algorithms == "pFedMe_p"):
         #     algorithms_list[i] = algorithms_list[i] + "_" + string_learning_rate + "_" + str(num_users) + "u" + "_" + str(batch_size) + "b" + "_" +str(loc_ep1) + "_"+ str(k)
         # elif(algorithms == "SSGD"):
@@ -71,10 +71,10 @@ def get_data_label_style(input_data = [], linestyles= [], algs_lbl = [], lamb = 
 
     return data, lstyles, labels
 
-def average_data(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb="", learning_rate="", beta="", algorithms="", batch_size=0, dataset = "", k = "", times = 5):
+def average_data(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb="", learning_rate="", robust="", algorithms="", batch_size=0, dataset = "", k = "", times = 5):
     if(algorithms == "PerAvg"):
         algorithms = "PerAvg_p"
-    glob_acc, train_acc, train_loss, avg_acc = get_all_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms, batch_size, dataset, k, times)
+    glob_acc, train_acc, train_loss, avg_acc = get_all_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms, batch_size, dataset, k, times)
     glob_acc_data = np.average(glob_acc, axis=0)
     avg_acc_data = np.average(avg_acc, axis=0)
     train_acc_data = np.average(train_acc, axis=0)
@@ -92,7 +92,7 @@ def average_data(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb="", learning
     print("Mean avg:", np.mean(max_avg))
 
     alg = dataset + "_" + algorithms
-    alg = alg + "_" + str(learning_rate) + "_" + str(beta) + "_" + str(lamb) + "_" + str(num_users) + "u" + "_" + str(batch_size) + "b" + "_" + str(loc_ep1) + "_" + str(k)
+    alg = alg + "_" + str(learning_rate) + "_" + str(robust) + "_" + str(lamb) + "_" + str(num_users) + "u" + "_" + str(batch_size) + "b" + "_" + str(loc_ep1) + "_" + str(k)
     if(algorithms == "pFedMe" or algorithms == "pFedMe_p"):
         alg = alg + "_" + str(k) + "_" #+ str(personal_learning_rate)
     alg = alg + "_" + "avg"
@@ -104,10 +104,10 @@ def average_data(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb="", learning
             hf.create_dataset('rs_train_loss', data=train_loss_data)
             hf.close()
 
-def plot_summary_one_figure(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb=[], learning_rate=[], beta=[], algorithms_list=[], batch_size=0, dataset = "", k = [], personal_learning_rate = []):
+def plot_summary_one_figure(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb=[], learning_rate=[], robust=[], algorithms_list=[], batch_size=0, dataset = "", k = [], personal_learning_rate = []):
     Numb_Algs = len(algorithms_list)
     dataset = dataset
-    glob_acc_, train_acc_, train_loss_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate )
+    glob_acc_, train_acc_, train_loss_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate )
     
     glob_acc =  average_smooth(glob_acc_, window='flat')
     train_loss = average_smooth(train_loss_, window='flat')
@@ -193,12 +193,12 @@ def average_smooth(data, window_len=20, window='hanning'):
     return np.array(results)
 
 
-def plot_summary_human_activity_eta(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate):
+def plot_summary_human_activity_eta(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate):
     Numb_Algs = len(algorithms_list)
     algorithms =   algorithms_list.copy()
     dataset = dataset
     
-    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate )
+    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate )
     
     glob_acc =  average_smooth(glob_acc_, window='flat')
     glob_acc_avg =  average_smooth(glob_acc_avg_, window='flat')
@@ -236,12 +236,12 @@ def plot_summary_human_activity_eta(num_users, loc_ep1, Numb_Glob_Iters, lamb, l
     plt.savefig(dataset.upper() + "_eta_test_convex.pdf", bbox_inches="tight",pad_inches = 0)
     plt.close()
 
-def plot_summary_human_activity_akl(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate):
+def plot_summary_human_activity_akl(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate):
     Numb_Algs = len(algorithms_list)
     algorithms =   algorithms_list.copy()
     dataset = dataset
     
-    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate )
+    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate )
     
     glob_acc =  average_smooth(glob_acc_, window='flat')
     glob_acc_avg =  average_smooth(glob_acc_avg_, window='flat')
@@ -292,12 +292,12 @@ def plot_summary_human_activity_akl(num_users, loc_ep1, Numb_Glob_Iters, lamb, l
     plt.savefig(dataset.upper() + "_akl_test_convex.pdf", bbox_inches="tight",pad_inches = 0)
     plt.close()
 
-def plot_summary_human_activity_akl_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate):
+def plot_summary_human_activity_akl_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate):
     Numb_Algs = len(algorithms_list)
     algorithms =   algorithms_list.copy()
     dataset = dataset
     
-    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate )
+    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate )
     
     glob_acc =  average_smooth(glob_acc_, window='flat')
     glob_acc_avg =  average_smooth(glob_acc_avg_, window='flat')
@@ -349,12 +349,12 @@ def plot_summary_human_activity_akl_non(num_users, loc_ep1, Numb_Glob_Iters, lam
     plt.savefig(dataset.upper() + "_akl_test_non_convex.pdf", bbox_inches="tight",pad_inches = 0)
     plt.close()
 
-def plot_summary_vehicle_eta(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate):
+def plot_summary_vehicle_eta(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate):
     Numb_Algs = len(algorithms_list)
     algorithms =   algorithms_list.copy()
     dataset = dataset
     
-    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate )
+    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate )
     
     glob_acc =  average_smooth(glob_acc_, window='flat')
     glob_acc_avg =  average_smooth(glob_acc_avg_, window='flat')
@@ -396,12 +396,12 @@ def plot_summary_vehicle_eta(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning
     plt.close()
 
 
-def plot_summary_mnist_eta(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate):
+def plot_summary_mnist_eta(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate):
     Numb_Algs = len(algorithms_list)
     algorithms =   algorithms_list.copy()
     dataset = dataset
     
-    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate )
+    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate )
     
     glob_acc =  average_smooth(glob_acc_, window='flat')
     glob_acc_avg =  average_smooth(glob_acc_avg_, window='flat')
@@ -444,12 +444,12 @@ def plot_summary_mnist_eta(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_r
     plt.close()
 
 
-def plot_summary_mnist_akl(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate):
+def plot_summary_mnist_akl(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate):
     Numb_Algs = len(algorithms_list)
     algorithms =   algorithms_list.copy()
     dataset = dataset
     
-    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate )
+    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate )
     
     glob_acc =  average_smooth(glob_acc_, window='flat')
     glob_acc_avg =  average_smooth(glob_acc_avg_, window='flat')
@@ -507,12 +507,12 @@ def plot_summary_mnist_akl(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_r
     plt.close()
 
 
-def plot_summary_mnist_eta_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate):
+def plot_summary_mnist_eta_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate):
     Numb_Algs = len(algorithms_list)
     algorithms =   algorithms_list.copy()
     dataset = dataset
     
-    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate )
+    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate )
     
     glob_acc =  average_smooth(glob_acc_, window='flat')
     glob_acc_avg =  average_smooth(glob_acc_avg_, window='flat')
@@ -555,12 +555,12 @@ def plot_summary_mnist_eta_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learni
     plt.close()
 
 
-def plot_summary_mnist_akl_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate):
+def plot_summary_mnist_akl_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate):
     Numb_Algs = len(algorithms_list)
     algorithms =   algorithms_list.copy()
     dataset = dataset
     
-    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate )
+    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate )
     
     glob_acc =  average_smooth(glob_acc_, window='flat')
     glob_acc_avg =  average_smooth(glob_acc_avg_, window='flat')
@@ -617,12 +617,12 @@ def plot_summary_mnist_akl_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learni
     plt.savefig(dataset.upper() + "_akl_test_non_convex.pdf", bbox_inches="tight",pad_inches = 0)
     plt.close()
 
-def plot_summary_vehicle_akl(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate):
+def plot_summary_vehicle_akl(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate):
     Numb_Algs = len(algorithms_list)
     algorithms =   algorithms_list.copy()
     dataset = dataset
     
-    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate )
+    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate )
     
     glob_acc =  average_smooth(glob_acc_, window='flat')
     glob_acc_avg =  average_smooth(glob_acc_avg_, window='flat')
@@ -674,12 +674,12 @@ def plot_summary_vehicle_akl(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning
     plt.savefig(dataset.upper() + "_akl_test_convex.pdf", bbox_inches="tight",pad_inches = 0)
     plt.close()
 
-def plot_summary_vehicle_akl_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate):
+def plot_summary_vehicle_akl_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate):
     Numb_Algs = len(algorithms_list)
     algorithms =   algorithms_list.copy()
     dataset = dataset
     
-    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate )
+    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate )
     
     glob_acc =  average_smooth(glob_acc_, window='flat')
     glob_acc_avg =  average_smooth(glob_acc_avg_, window='flat')
@@ -732,12 +732,12 @@ def plot_summary_vehicle_akl_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, lear
     plt.savefig(dataset.upper() + "_akl_test_non_convex.pdf", bbox_inches="tight",pad_inches = 0)
     plt.close()
 
-def plot_summary_human_activity_eta_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate):
+def plot_summary_human_activity_eta_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate):
     Numb_Algs = len(algorithms_list)
     algorithms =   algorithms_list.copy()
     dataset = dataset
     
-    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate )
+    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate )
 
     glob_acc =  average_smooth(glob_acc_, window='flat')
     glob_acc_avg =  average_smooth(glob_acc_avg_, window='flat')
@@ -777,12 +777,12 @@ def plot_summary_human_activity_eta_non(num_users, loc_ep1, Numb_Glob_Iters, lam
     plt.close()
 
 
-def plot_summary_vehicle_eta_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate):
+def plot_summary_vehicle_eta_non(num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate):
     Numb_Algs = len(algorithms_list)
     algorithms =   algorithms_list.copy()
     dataset = dataset
     
-    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, beta, algorithms_list, batch_size, dataset, k, personal_learning_rate )
+    glob_acc_, train_acc_, train_loss_, glob_acc_avg_ = get_training_data_value( num_users, loc_ep1, Numb_Glob_Iters, lamb, learning_rate, robust, algorithms_list, batch_size, dataset, k, personal_learning_rate )
     
     glob_acc =  average_smooth(glob_acc_, window='flat')
     glob_acc_avg =  average_smooth(glob_acc_avg_, window='flat')

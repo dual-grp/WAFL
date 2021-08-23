@@ -9,8 +9,8 @@ import numpy as np
 # Implementation for FedAvg clients
 
 class UserAVG(User):
-    def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, beta, L_k, local_epochs):
-        super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, beta, L_k, local_epochs)
+    def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, robust, L_k, local_epochs):
+        super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, robust, L_k, local_epochs)
 
         if(model[1] == "Mclr_CrossEntropy"):
             self.loss = nn.CrossEntropyLoss()

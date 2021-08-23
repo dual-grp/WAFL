@@ -5,7 +5,7 @@ import h5py
 import copy
 
 class Server:
-    def __init__(self, experiment, device, dataset,algorithm, model, batch_size, learning_rate ,beta, L_k,
+    def __init__(self, experiment, device, dataset,algorithm, model, batch_size, learning_rate ,robust, L_k,
                  num_glob_iters, local_epochs, sub_users, num_users, times):
 
         # Set up the main attributes
@@ -21,7 +21,7 @@ class Server:
         self.selected_users = []
         self.num_users = num_users
         self.sub_users = sub_users
-        self.beta = beta
+        self.robust = robust
         self.L_k = L_k
         self.algorithm = algorithm
         self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc, self.rs_target_acc, self.robust_acc = [], [], [], [], []
@@ -126,7 +126,7 @@ class Server:
             os.makedirs(dir_path)
         #alg = self.dataset[1] + "_" + self.algorithm
         alg = str(self.dataset[0]) + "_" + self.algorithm
-        alg = alg + "_" + str(self.learning_rate) + "_" + str(self.beta) + "_" + str(self.L_k) + "_" + str(self.num_users) + "u" + "_" + str(self.batch_size) + "b" + "_" + str(self.local_epochs) 
+        alg = alg + "_" + str(self.learning_rate) + "_" + str(self.robust) + "_" + str(self.L_k) + "_" + str(self.num_users) + "u" + "_" + str(self.batch_size) + "b" + "_" + str(self.local_epochs) 
         #if(self.sub_data):
         #    alg = alg + "_" + "subdata"
         alg = alg + "_" + str(self.times)

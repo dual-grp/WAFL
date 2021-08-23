@@ -10,14 +10,14 @@ import copy
 # Implementation for FedAvg Server
 
 class FedRob(Server):
-    def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_users, num_users, times):
-        super().__init__(experiment, device, dataset, algorithm, model[0], batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_users, num_users, times)
+    def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, robust, L_k, num_glob_iters, local_epochs, sub_users, num_users, times):
+        super().__init__(experiment, device, dataset, algorithm, model[0], batch_size, learning_rate, robust, L_k, num_glob_iters, local_epochs, sub_users, num_users, times)
 
         # Initialize data for all  users
         if(num_users == 1):
             i = 0
             train , test = dataset[2][i]
-            user = UserRobF(device, i, train, test, model, batch_size, learning_rate, beta, L_k, local_epochs)
+            user = UserRobF(device, i, train, test, model, batch_size, learning_rate, robust, L_k, local_epochs)
             self.target_domain = user#copy.deepcopy(user)
             user.set_target()
             self.users.append(user)
@@ -26,7 +26,7 @@ class FedRob(Server):
 
         for i in range(num_users):
             train , test = dataset[2][i]
-            user = UserRobF(device, i, train, test, model, batch_size, learning_rate, beta, L_k, local_epochs)
+            user = UserRobF(device, i, train, test, model, batch_size, learning_rate, robust, L_k, local_epochs)
             if(i == dataset[1] or (i == num_users-1 and dataset[1] < 0)):
                 self.target_domain = user
                 user.set_target()
