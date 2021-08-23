@@ -151,12 +151,12 @@ class Server:
         ids = [c.id for c in self.users]
         return ids, num_samples, tot_correct
 
-    def test_robust(self):
+    def test_robust(self, attack_mode = 'pgd'):
         'can choose a fraction of user which is attattack: let say just choose 30-> 50% clients are attracked'
         robust_correct = []
         num_samples = []
         for c in self.users:
-            ct, ns = c.test_robust()
+            ct, ns = c.test_robust(attack_mode)
             robust_correct.append(ct*1.0)
             num_samples.append(ns)
         ids = [c.id for c in self.users]
@@ -196,8 +196,8 @@ class Server:
         print("Average Global Trainning Accurancy on all Source Domain: ", train_acc)
         print("Average Global Trainning Loss on all Source Domain: ",train_loss)
     
-    def evaluate_robust(self):
-        stats = self.test_robust()  
+    def evaluate_robust(self, attack_mode = 'pgd'):
+        stats = self.test_robust(attack_mode)  
         robust_glob_acc = np.sum(stats[2])*1.0/np.sum(stats[1])
         self.robust_acc.append(robust_glob_acc)
         if(self.experiment):

@@ -25,7 +25,7 @@ class FedAvg(Server):
             return
         for i in range(num_users):
             train , test = dataset[2][i]
-            user = UserAVG(device, i, train, test, model, batch_size, learning_rate,beta,L_k, local_epochs)
+            user = UserAVG(device, i, train, test, model, batch_size, learning_rate, beta, L_k, local_epochs)
             if(i == dataset[1] or (i == num_users-1 and dataset[1] < 0)):
                 self.target_domain = user
                 user.set_target()
@@ -58,7 +58,8 @@ class FedAvg(Server):
             # Evaluate model each interation
             self.evaluate()
             self.evaluate_on_target()
-            self.evaluate_robust()
+            self.evaluate_robust('pgd')
+            #self.evaluate_robust('fgsm')
 
             #self.selected_users = self.select_users(glob_iter, self.sub_users)
             self.selected_users = self.select_users(glob_iter, self.sub_users)

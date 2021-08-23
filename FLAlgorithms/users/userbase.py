@@ -86,12 +86,15 @@ class User:
             test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
         return test_acc, y.shape[0]
 
-    def test_robust(self):
+    def test_robust(self, attack_mode = 'pgd'):
         self.model.eval()
         test_acc = 0
         for x, y in self.testloaderfull:
             x, y = x.to(self.device), y.to(self.device)
-            x = self.pgd_linf(X = x, y = y)
+            if(attack_mode == 'pgd'):
+                x = self.pgd_linf(X = x, y = y)
+            elif(attack_mode == 'fgsm'):
+                x = self.fgsm(X = x, y = y)
             output = self.model(x)
             test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
         return test_acc, y.shape[0]
@@ -155,30 +158,15 @@ class User:
     def load_model(self):
         model_path = os.path.join("models", self.dataset)
         self.model = torch.load(os.path.join(model_path, "server" + ".pt"))
-    
-    def perturb(self, X, y):
-        self.epsilon = 0.3
-        self.K = 10
-        self.a = 0.01
-        self.rand = 0
-        if(self.rand):
-            x = X + torch.random.uniform(-self.epsilon, self.epsilon, X.shape)
-            x = np.clip(x, 0, 1) # ensure valid pixel range
-        else:
-            x = X.clone()
-        
-        x.requires_grad_(True)
-        for i in range(self.K):
-            loss = self.loss(self.model(x), y)
-            grad = torch.autograd.grad(loss, x, retain_graph=True)
-            sign_grad =  torch.sign(grad[0])
-            x = x + self.a * sign_grad
-            x = torch.clip(x, X - self.epsilon, X + self.epsilon) 
-            x = torch.clip(x, 0, 1) # ensure valid pixel range
-        #x.requires_grad_(False)
-        return x, y
 
-    def pgd_linf(self, X, y, epsilon = 0.3, alpha = 0.01, num_iter = 20):
+    def fgsm(self, X, y, epsilon):
+        """ Construct FGSM adversarial examples on the examples X"""
+        delta = torch.zeros_like(X, requires_grad=True)
+        loss = self.loss(self.model(X + delta), y)
+        loss.backward()
+        return X + epsilon * delta.grad.detach().sign()
+        
+    def pgd_linf(self, X, y, epsilon = 0.3, alpha = 0.01, num_iter = 10):
         ' Construct FGSM adversarial examples on the examples X'
         delta = torch.zeros_like(X, requires_grad=True).to(self.device)
         for t in range(num_iter):
@@ -186,56 +174,27 @@ class User:
             loss.backward()
             sign = delta.grad.detach().sign()
             delta.data = (delta + alpha*delta.grad.detach().sign()).clamp(-epsilon,epsilon)
-            #delta.data = (delta + alpha*delta.grad.detach()).clamp(-epsilon,epsilon)
             delta.grad.zero_()
-        return X + delta.detach()
+        temp = delta.detach()
+        return X + temp
 
-    def wasssertein_linf(self, X, y, lr = 0.01, num_iter = 20): 
-        ' Construct FGSM wasssertein examples on the examples X'
-        #norm_data = torch.norm(X)
-        X_adv = X.clone()#torch.zeros_like(X, requires_grad=True).to(self.device)
+    def wasssertein(self, X, y, epsilon = 0.0005, alpha = 0.01, num_iter = 20):
+        ' Construct FGSM adversarial examples on the examples X'
+        X_adv = X.clone() + torch.rand(X.shape).clamp(-epsilon,epsilon).to(self.device)
         X_adv.requires_grad_(True)
-        # init adverisial example
-        loss = self.loss(self.model(X_adv), y)
-        loss.backward()
-        X_adv.data  = X_adv + self.mu*X_adv.grad.detach()
-        X_adv.grad.zero_()
-
         for t in range(num_iter):
-            loss = self.loss(self.model(X_adv), y) - self.mu *  torch.norm(X_adv-X)
+            loss1 = self.loss(self.model(X_adv), y)
+            loss2 = 0.5 * self.mu * torch.norm(X_adv - X)**2 / len(X_adv)
+            loss = loss1 - loss2
             loss.backward()
-            #if(loss > 0):
-            #    breakl
-            #lr = 1. / (t+1)
-            X_adv.data = (X_adv + 0.01 * X_adv.grad.detach())#.clamp(-epsilon,epsilon)
+            X_adv.data = (X_adv.data + len(X_adv) * X_adv.grad)
+            #delta = X_adv - X
+            #norm_delta = torch.norm(delta)
+            #norm_grad = torch.norm(X_adv.grad)
+            if(torch.norm(X_adv.grad) < 1e-4):
+                break
             X_adv.grad.zero_()
-            norm_data = torch.norm(X_adv-X)
-        return X_adv.detach()
-
-    def pgd_linf_rand(self, X, y, epsilon = 0.3, alpha = 0.01, num_iter = 20, restarts = 0):
-        'Construct PGD adversarial examples on the samples X, with random restarts'
-        max_loss = torch.zeros(y.shape[0]).to(self.device)
-        max_delta = torch.zeros_like(X)
-        
-        for i in range(restarts):
-            delta = torch.rand_like(X, requires_grad=True)
-            delta.data = delta.data * 2 * epsilon - epsilon
-            
-            for t in range(num_iter):
-                loss = self.loss(self.model(X + delta), y)
-                loss.backward()
-                delta.data = (delta + alpha*delta.grad.detach().sign()).clamp(-epsilon,epsilon)
-                delta.grad.zero_()
-            
-            all_loss = nn.CrossEntropyLoss(reduction='none')(self.model(X+delta),y)
-            max_delta[all_loss >= max_loss] = delta.detach()[all_loss >= max_loss]
-            max_loss = torch.max(max_loss, all_loss)
-            
-        return max_delta
-
-    def norms(Z):
-        'Compute norms over all but the first dimension'
-        return Z.view(Z.shape[0], -1).norm(dim=1)[:,None,None,None]
+        return X_adv
 
     def pgd_l2(self, X, y, epsilon, alpha, num_iter):
         delta = torch.zeros_like(X, requires_grad=True)

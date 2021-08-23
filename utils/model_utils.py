@@ -10,6 +10,8 @@ import random
 from scipy.io import loadmat
 import sys
 import _pickle as pkl
+from sklearn.datasets import fetch_mldata
+from sklearn.model_selection import train_test_split
 
 IMAGE_SIZE = 28
 IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
@@ -77,6 +79,45 @@ def get_batch_sample(data, batch_size):
     batched_x = data_x[0:batch_size]
     batched_y = data_y[0:batch_size]
     return (batched_x, batched_y)
+
+def read_mnist_data():
+    import scipy
+    #mnist = loadmat(base_dir + '/Mnist/data/mldata/mnist.mat')
+    mu = np.mean(mnist.data.astype(np.float32), 0)
+    sigma = np.std(mnist.data.astype(np.float32), 0)
+    mnist.data = (mnist.data.astype(np.float32) - mu)/(sigma+0.001)
+    NUM_USERS = 1
+    ###### CREATE USER DATA SPLIT #######
+    # Assign 100 samples to each user
+    X = [[] for _ in range(NUM_USERS)]
+    y = [[] for _ in range(NUM_USERS)]
+    idx = np.zeros(10, dtype=np.int64)
+    for user in range(NUM_USERS):
+            #l = (2*user+j)%10
+        X[user] = mnist.data.tolist()
+        y[user] =  mnist.target.tolist()
+
+    # Create data structure
+    train_data = {'users': [], 'user_data':{}, 'num_samples':[]}
+    test_data = {'users': [], 'user_data':{}, 'num_samples':[]}
+
+    # Setup 5 users
+    # for i in trange(5, ncols=120):
+    # Setup 5 users
+    # for i in trange(5, ncols=120):
+    for i in range(NUM_USERS):
+        uname = i
+        X_train, X_test, y_train, y_test = train_test_split(X[i], y[i], train_size=0.75, stratify=y[i])
+
+        train_data["user_data"][uname] = {'x': X_train, 'y': y_train}
+        train_data['users'].append(uname)
+        train_data['num_samples'].append(len(y_train))
+        
+        test_data['users'].append(uname)
+        test_data["user_data"][uname] = {'x': X_test, 'y': y_test}
+        test_data['num_samples'].append(len(y_test))
+
+    return train_data['users'], 0 , train_data['user_data'], test_data['user_data']
 
 def read_cifa_data():
     transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
@@ -337,6 +378,10 @@ def read_domain_data(dataset):
             clients, groups, train_data, test_data = read_cifa_data()
             return clients, groups, train_data, test_data
 
+        #if(dataset == "Mnist"):
+        #    clients, groups, train_data, test_data = read_mnist_data()
+        #    return clients, groups, train_data, test_data
+            
         train_data_dir = os.path.join('data',dataset,'data', 'train')
         test_data_dir = os.path.join('data',dataset,'data', 'test')
         clients = []

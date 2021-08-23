@@ -25,7 +25,7 @@ class UserAVG(User):
         for epoch in range(1, self.local_epochs + 1):
             for X,y in self.trainloader:
                 X, y = X.to(self.device), y.long().to(self.device)#self.get_next_train_batch()
-                #X  = self.pgd_linf(X = X, y = y)
+                X  = self.pgd_linf(X = X, y = y)
                 self.optimizer.zero_grad()
                 #output = self.model(X)
                 loss = self.loss(self.model(X), y)
@@ -33,16 +33,3 @@ class UserAVG(User):
                 self.optimizer.step()
                 LOSS += loss
         return LOSS
-
-    # def train(self, epochs):
-    #     LOSS = 0
-    #     self.model.train()
-    #     for epoch in range(1, self.local_epochs + 1):
-    #         self.model.train()
-    #         X, y = self.get_next_train_batch()
-    #         self.optimizer.zero_grad()
-    #         output = self.model(X)
-    #         loss = self.loss(output, y)
-    #         loss.backward()
-    #         self.optimizer.step()
-    #     return LOSS
