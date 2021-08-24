@@ -76,7 +76,7 @@ if __name__ == "__main__":
             "batch_size":args.batch_size,
             "learning_rate":args.learning_rate,
             "target" : args.target, 
-            "L_k" : args.L_k,
+            "robust" : args.robust,
             "num_glob_iters":args.num_global_iters,
             "local_epochs":args.local_epochs,
             "numusers": args.subusers,
