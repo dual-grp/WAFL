@@ -48,7 +48,8 @@ class FedRob(Server):
             # Evaluate model each interation
             self.evaluate()
             self.evaluate_on_target()
-            self.evaluate_robust('pgd')
+            if(self.robust):
+                self.evaluate_robust('pgd')
             #self.evaluate_robust('fgsm')
 
             # Select subset of user for training

@@ -259,7 +259,6 @@ class FeedFwdModel(nn.Module):
         
 CONV_SIZE = 16  
 class DANCNNModel(nn.Module):
-    
     def __init__(self):
         super(DANCNNModel, self).__init__()
         #self.feature = nn.Sequential()

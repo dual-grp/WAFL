@@ -5,7 +5,7 @@ import h5py
 import copy
 
 class Server:
-    def __init__(self, experiment, device, dataset,algorithm, model, batch_size, learning_rate ,robust, L_k,
+    def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate ,robust , L_k,
                  num_glob_iters, local_epochs, sub_users, num_users, times):
 
         # Set up the main attributes
