@@ -8,6 +8,7 @@
 *.pdf
 *.mat
 *.json
+*.pt
 .vscode/
 test/
 results/
