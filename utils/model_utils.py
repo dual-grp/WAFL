@@ -179,8 +179,6 @@ def read_cifa_data():
             y[user] += (l*np.ones(10)).tolist()
             idx[l] += 10
 
-    print("IDX1:", idx)  # counting samples for each labels
-
     # Assign remaining sample by power law
     user = 0
     props = np.random.lognormal(
@@ -205,10 +203,6 @@ def read_cifa_data():
                 X[user] += cifa_data[l][idx[l]:idx[l]+num_samples].tolist()
                 y[user] += (l*np.ones(num_samples)).tolist()
                 idx[l] += num_samples
-                print("check len os user:", user, j,
-                    "len data", len(X[user]), num_samples)
-
-    print("IDX2:", idx) # counting samples for each labels
 
     # Create data structure
     train_data = {'users': [], 'user_data':{}, 'num_samples':[]}
@@ -216,6 +210,7 @@ def read_cifa_data():
 
     # Setup 5 users
     # for i in trange(5, ncols=120):
+    data_all = []
     for i in range(NUM_USERS):
         uname = i
         combined = list(zip(X[i], y[i]))
@@ -227,61 +222,16 @@ def read_cifa_data():
         test_len = num_samples - train_len
 
         #X_train, X_test, y_train, y_test = train_test_split(X[i], y[i], train_size=0.75, stratify=y[i])\
-        
-        test_data['users'].append(uname)
-        test_data["user_data"][uname] =  {'x': X[i][:test_len], 'y': y[i][:test_len]} 
-        test_data['num_samples'].append(test_len)
-
-        train_data["user_data"][uname] =  {'x': X[i][test_len:], 'y': y[i][test_len:]}
-        train_data['users'].append(uname)
-        train_data['num_samples'].append(train_len)
-        
-        
-    # random.seed(1)
-    # np.random.seed(1)
-    # NUM_USERS = 1 # should be muitiple of 10
-    # NUM_LABELS = 10
-    # # Setup directory for train/test data
-    # cifa_data_image = []
-    # cifa_data_label = []
-
-    # cifa_data_image.extend(trainset.data.cpu().detach().numpy())
-    # cifa_data_label.extend(trainset.targets.cpu().detach().numpy())
-
-    # cifa_data_image = np.array(cifa_data_image)
-    # cifa_data_label = np.array(cifa_data_label)
-
-    # # Create data structure
-    # train_data = {'users': [], 'user_data':{}, 'num_samples':[]}
-
-    # # Setup 5 users
-    # # for i in trange(5, ncols=120):
-    # for i in range(NUM_USERS):
-    #     uname = 'f_{0:05d}'.format(i)
-    #     train_data['users'].append(uname) 
-    #     train_data['user_data'][uname] = {'x': cifa_data_image.tolist(), 'y': cifa_data_label.tolist()}
-    #     train_data['num_samples'].append(len(cifa_data_image))
-
-    # #-----------------------------------TEst -------------------------------------#
-    # cifa_data_image_test = []
-    # cifa_data_label_test = []
-    # cifa_data_image_test.extend(testset.data.cpu().detach().numpy())
-    # cifa_data_label_test.extend(testset.targets.cpu().detach().numpy())
-    # cifa_data_image_test = np.array(cifa_data_image_test)
-    # cifa_data_label_test = np.array(cifa_data_label_test)
-
-    # cifa_data = []
-
-    # # Create data structure
-    # test_data = {'users': [], 'user_data':{}, 'num_samples':[]}
-    
-    # for i in range(NUM_USERS):
-    #     num_samples = len(cifa_data_image_test)
-    #     test_data['users'].append(uname) 
-    #     test_data['user_data'][uname] = {'x': cifa_data_image_test.tolist(), 'y': cifa_data_label_test.tolist()}
-    #     test_data['num_samples'].append(num_samples)
-
-    return train_data['users'], _ , train_data['user_data'], test_data['user_data']
+        X_train, y_train, X_test, y_test = X[i][test_len:], y[i][test_len:],X[i][:test_len],y[i][:test_len]
+        X_train = torch.Tensor(X_train).view(-1, NUM_CHANNELS_CIFAR, IMAGE_SIZE_CIFAR, IMAGE_SIZE_CIFAR).type(torch.float32)
+        y_train = torch.Tensor(y_train).type(torch.int64)
+        X_test = torch.Tensor(X_test).view(-1, NUM_CHANNELS_CIFAR, IMAGE_SIZE_CIFAR, IMAGE_SIZE_CIFAR).type(torch.float32)
+        y_test = torch.Tensor(y_test).type(torch.int64)
+        train_data_res = [(x, y) for x, y in zip(X_train, y_train)]
+        test_data_res = [(x, y) for x, y in zip(X_test, y_test)]
+        data_all.append([train_data_res,test_data_res])
+    print("Finish generate Cifar10")
+    return data_all
 
 def read_data(dataset):
     '''parses data in given train and test data directories
@@ -299,8 +249,7 @@ def read_data(dataset):
     '''
 
     if(dataset == "Cifar10"):
-        clients, groups, train_data, test_data = read_cifa_data()
-        return clients, groups, train_data, test_data
+        return read_cifa_data()
 
     train_data_dir = os.path.join('data',dataset,'data', 'train')
     test_data_dir = os.path.join('data',dataset,'data', 'test')
@@ -375,8 +324,7 @@ def read_domain_data(dataset):
 
     else:
         if(dataset == "Cifar10"):
-            clients, groups, train_data, test_data = read_cifa_data()
-            return clients, groups, train_data, test_data
+            return read_cifa_data()
 
         #if(dataset == "Mnist"):
         #    clients, groups, train_data, test_data = read_mnist_data()

@@ -135,7 +135,7 @@ class CNNMnist(nn.Module):
 
 
 class CNNCifar(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes = 10):
         super(CNNCifar, self).__init__()
         self.conv1 = nn.Conv2d(3, 6, 5)
         self.pool = nn.MaxPool2d(2, 2)

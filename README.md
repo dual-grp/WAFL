@@ -4,7 +4,7 @@ This repository implements all experiments in the paper the *WASSERSTEIN DISTRIB
 Authors: 
 
 # Software requirements:
-- numpy, scipy, torch, Pillow, matplotlib, tqdm, pandas, h5py, comet_ml
+- numpy, scipy, torch, Pillow, matplotlib, tqdm, pandas, h5py, comet_ml, scikit-learn==0.20.3
 - To download the dependencies: **pip3 install -r requirements.txt**
 - The code can be run on any pc, doesn't require GPU.
   
