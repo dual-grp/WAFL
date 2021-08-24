@@ -7,6 +7,7 @@
 *.swp
 *.pdf
 *.mat
+*.json
 .vscode/
 test/
 results/
