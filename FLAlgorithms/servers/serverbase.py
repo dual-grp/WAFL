@@ -5,7 +5,7 @@ import h5py
 import copy
 
 class Server:
-    def __init__(self, experiment, device, dataset,algorithm, model, batch_size, learning_rate ,beta, L_k,
+    def __init__(self, experiment, device, dataset,algorithm, model, batch_size, learning_rate ,robust, L_k,
                  num_glob_iters, local_epochs, sub_users, num_users, times):
 
         # Set up the main attributes
@@ -21,10 +21,10 @@ class Server:
         self.selected_users = []
         self.num_users = num_users
         self.sub_users = sub_users
-        self.beta = beta
+        self.robust = robust
         self.L_k = L_k
         self.algorithm = algorithm
-        self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc, self.rs_target_acc = [], [], [], []
+        self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc, self.rs_target_acc, self.robust_acc = [], [], [], [], []
         self.times = times
         self.experiment = experiment
         self.sub_data = 0
@@ -76,15 +76,15 @@ class Server:
         for server_param, user_param in zip(self.model.parameters(), user.get_parameters()):
             server_param.data = server_param.data + user_param.data.clone() * ratio
 
-    def aggregate_parameters(self):
-        assert (self.users is not None and len(self.users) > 0)
+    def aggregate_parameters(self, users):
+        assert (users is not None and len(users) > 0)
         for param in self.model.parameters():
             param.data = torch.zeros_like(param.data)
         total_train = 0
         #if(self.num_users = self.to)
-        for user in self.users:
+        for user in users:
             total_train += user.train_samples
-        for user in self.users:
+        for user in users:
             self.add_parameters(user, user.train_samples / total_train)
     
     def save_model(self):
@@ -126,7 +126,7 @@ class Server:
             os.makedirs(dir_path)
         #alg = self.dataset[1] + "_" + self.algorithm
         alg = str(self.dataset[0]) + "_" + self.algorithm
-        alg = alg + "_" + str(self.learning_rate) + "_" + str(self.beta) + "_" + str(self.L_k) + "_" + str(self.num_users) + "u" + "_" + str(self.batch_size) + "b" + "_" + str(self.local_epochs) 
+        alg = alg + "_" + str(self.learning_rate) + "_" + str(self.robust) + "_" + str(self.L_k) + "_" + str(self.num_users) + "u" + "_" + str(self.batch_size) + "b" + "_" + str(self.local_epochs) 
         #if(self.sub_data):
         #    alg = alg + "_" + "subdata"
         alg = alg + "_" + str(self.times)
@@ -143,14 +143,24 @@ class Server:
         '''
         num_samples = []
         tot_correct = []
-        losses = []
+    
         for c in self.users:
             ct, ns = c.test()
             tot_correct.append(ct*1.0)
             num_samples.append(ns)
         ids = [c.id for c in self.users]
-
         return ids, num_samples, tot_correct
+
+    def test_robust(self, attack_mode = 'pgd'):
+        'can choose a fraction of user which is attattack: let say just choose 30-> 50% clients are attracked'
+        robust_correct = []
+        num_samples = []
+        for c in self.users:
+            ct, ns = c.test_robust(attack_mode)
+            robust_correct.append(ct*1.0)
+            num_samples.append(ns)
+        ids = [c.id for c in self.users]
+        return ids, num_samples, robust_correct
 
     def train_error_and_loss(self):
         num_samples = []
@@ -185,6 +195,15 @@ class Server:
         print("Average Global Accurancy on all Source Domain : ", glob_acc)
         print("Average Global Trainning Accurancy on all Source Domain: ", train_acc)
         print("Average Global Trainning Loss on all Source Domain: ",train_loss)
+    
+    def evaluate_robust(self, attack_mode = 'pgd'):
+        stats = self.test_robust(attack_mode)  
+        robust_glob_acc = np.sum(stats[2])*1.0/np.sum(stats[1])
+        self.robust_acc.append(robust_glob_acc)
+        if(self.experiment):
+            self.experiment.log_metric("robust_acc",robust_glob_acc)
+        #print("stats_train[1]",stats_train[3][0])
+        print("Average Robust Global Accurancy on all: ", robust_glob_acc)
 
     def evaluate_on_target(self):
         # evaluate 

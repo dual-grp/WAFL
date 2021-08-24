@@ -13,7 +13,7 @@ from utils.options import args_parser
 # import comet_ml at the top of your file
 
 # Create an experiment with your api key:
-def main(experiment, dataset, algorithm, batch_size, learning_rate, beta, L_k, num_glob_iters,
+def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamma, num_glob_iters,
          local_epochs, sub_user, numusers, K, times, commet, gpu):
     
     # Get device status: Check GPU or CPU
@@ -30,12 +30,12 @@ def main(experiment, dataset, algorithm, batch_size, learning_rate, beta, L_k, n
         if(algorithm == "FedAvg"):
             if(commet):
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedAvg(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_user, numusers, i)
+            server = FedAvg(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, i)
         
         elif(algorithm == "FedRob"):
             if(commet):
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedRob(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, sub_user, numusers, i)
+            server = FedRob(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, i)
 
         else:
             print("Algorithm is invalid")
@@ -44,7 +44,7 @@ def main(experiment, dataset, algorithm, batch_size, learning_rate, beta, L_k, n
         server.train()
         server.test()
 
-    average_data(num_users=numusers, loc_ep1=local_epochs, Numb_Glob_Iters=num_glob_iters, lamb=L_k,learning_rate=learning_rate, beta = beta, algorithms=algorithm, batch_size=batch_size, dataset=dataset[0], k = K,times = times)
+    average_data(num_users=numusers, loc_ep1=local_epochs, Numb_Glob_Iters=num_glob_iters, lamb=gamma,learning_rate=learning_rate, robust = robust, algorithms=algorithm, batch_size=batch_size, dataset=dataset[0], k = K,times = times)
 
 if __name__ == "__main__":
     args = args_parser()
@@ -52,9 +52,8 @@ if __name__ == "__main__":
     print("Summary of training process:")
     print("Algorithm: {}".format(args.algorithm))
     print("Batch size: {}".format(args.batch_size))
-    print("Robust parameter: {}".format(args.L_k))
-    print("Learing rate       : {}".format(args.learning_rate))
-    print("Average Moving       : {}".format(args.beta))
+    print("Robust parameter: {}".format(args.gamma))
+    print("Robust Option       : {}".format(args.robust))
     print("Subset of users      : {}".format(args.subusers))
     print("Number of global rounds       : {}".format(args.num_global_iters))
     print("Number of local rounds       : {}".format(args.local_epochs))
@@ -94,8 +93,8 @@ if __name__ == "__main__":
         algorithm = args.algorithm,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,
-        beta = args.beta, 
-        L_k = args.L_k,
+        robust = args.robust, 
+        gamma = args.gamma,
         num_glob_iters=args.num_global_iters,
         local_epochs=args.local_epochs,
         sub_user = args.subusers,

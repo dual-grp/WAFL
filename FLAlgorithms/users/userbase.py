@@ -11,18 +11,18 @@ class User:
     """
     Base class for users in federated learning.
     """
-    def __init__(self, device, id, train_data, test_data, model, batch_size = 0, learning_rate = 0, beta = 0 , L_k = 0, local_epochs = 0):
+    def __init__(self, device, id, train_data, test_data, model, batch_size = 0, learning_rate = 0, robust = 0 , gamma = 0, local_epochs = 0):
         # from fedprox
         self.device = device
         self.model = copy.deepcopy(model)
         self.id = id  # integer
         self.train_samples = len(train_data)
         self.test_samples = len(test_data)
-        print("Len train and test",len(train_data),len(test_data))
+        #print("Len train and test",len(train_data),len(test_data))
         self.batch_size = batch_size
         self.learning_rate = learning_rate
-        self.beta = beta
-        self.L_k = L_k
+        self.robust = robust
+        self.gamma = gamma
         self.local_epochs = local_epochs
         self.target = False
 
@@ -81,6 +81,20 @@ class User:
         test_acc = 0
         for x, y in self.testloaderfull:
             x, y = x.to(self.device), y.to(self.device)
+            #x , y = self.perturb(x, y)
+            output = self.model(x)
+            test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
+        return test_acc, y.shape[0]
+
+    def test_robust(self, attack_mode = 'pgd'):
+        self.model.eval()
+        test_acc = 0
+        for x, y in self.testloaderfull:
+            x, y = x.to(self.device), y.to(self.device)
+            if(attack_mode == 'pgd'):
+                x = self.pgd_linf(X = x, y = y)
+            elif(attack_mode == 'fgsm'):
+                x = self.fgsm(X = x, y = y)
             output = self.model(x)
             test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
         return test_acc, y.shape[0]
@@ -144,7 +158,56 @@ class User:
     def load_model(self):
         model_path = os.path.join("models", self.dataset)
         self.model = torch.load(os.path.join(model_path, "server" + ".pt"))
-    
+
+    def fgsm(self, X, y, epsilon):
+        """ Construct FGSM adversarial examples on the examples X"""
+        delta = torch.zeros_like(X, requires_grad=True)
+        loss = self.loss(self.model(X + delta), y)
+        loss.backward()
+        return X + epsilon * delta.grad.detach().sign()
+        
+    def pgd_linf(self, X, y, epsilon = 0.3, alpha = 0.01, num_iter = 10):
+        ' Construct FGSM adversarial examples on the examples X'
+        delta = torch.zeros_like(X, requires_grad=True).to(self.device)
+        for t in range(num_iter):
+            loss = self.loss(self.model(X + delta), y)
+            loss.backward()
+            sign = delta.grad.detach().sign()
+            delta.data = (delta + alpha*delta.grad.detach().sign()).clamp(-epsilon,epsilon)
+            delta.grad.zero_()
+        temp = delta.detach()
+        return X + temp
+
+    def wasssertein(self, X, y, epsilon = 0.0005, alpha = 0.01, num_iter = 20):
+        ' Construct FGSM adversarial examples on the examples X'
+        X_adv = X.clone() + torch.rand(X.shape).clamp(-epsilon,epsilon).to(self.device)
+        X_adv.requires_grad_(True)
+        for t in range(num_iter):
+            loss1 = self.loss(self.model(X_adv), y)
+            loss2 = 0.5 * self.gamma * torch.norm(X_adv - X)**2 / len(X_adv)
+            loss = loss1 - loss2
+            loss.backward()
+            X_adv.data = (X_adv.data + len(X_adv) * X_adv.grad)
+            #delta = X_adv - X
+            #norm_delta = torch.norm(delta)
+            #norm_grad = torch.norm(X_adv.grad)
+            if(torch.norm(X_adv.grad) < 1e-4):
+                break
+            X_adv.grad.zero_()
+        return X_adv
+
+    def pgd_l2(self, X, y, epsilon, alpha, num_iter):
+        delta = torch.zeros_like(X, requires_grad=True)
+        for t in range(num_iter):
+            loss = self.loss(self.model(X + delta), y)
+            loss.backward()
+            delta.data += alpha*delta.grad.detach() / self.norms(delta.grad.detach())
+            delta.data = torch.min(torch.max(delta.detach(), -X), 1-X) # clip X+delta to [0,1]
+            delta.data *= epsilon / self.norms(delta.detach()).clamp(min=epsilon)
+            delta.grad.zero_()
+            
+        return delta.detach()
+
     @staticmethod
     def model_exists():
         return os.path.exists(os.path.join("models", "server" + ".pt"))

@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+#from functions import ReverseLayerF
 
 class Net(nn.Module):
     def __init__(self):
@@ -75,45 +76,6 @@ class DNN2(nn.Module):
 ##### Neural Network model #####
 #################################
 
-cfg = {
-    'VGG11': [64, 'M', 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
-    'VGG13': [64, 64, 'M', 128, 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
-    'VGG16': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M'],
-    'VGG19': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M'],
-}
-
-class VGG(nn.Module):
-    def __init__(self, vgg_name):
-        super(VGG, self).__init__()
-        self.features = self._make_layers(cfg[vgg_name])
-        self.classifier = nn.Sequential(
-            nn.Linear(512, 512),
-            nn.ReLU(True),
-            nn.Linear(512, 512),
-            nn.ReLU(True),
-            nn.Linear(512, 10)
-        )
-
-    def forward(self, x):
-        out = self.features(x)
-        out = out.view(out.size(0), -1)
-        out = self.classifier(out)
-        output = F.log_softmax(out, dim=1)
-        return output
-
-    def _make_layers(self, cfg):
-        layers = []
-        in_channels = 3
-        for x in cfg:
-            if x == 'M':
-                layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
-            else:
-                layers += [nn.Conv2d(in_channels, x, kernel_size=3, padding=1),
-                           nn.BatchNorm2d(x),
-                           nn.ReLU(inplace=True)]
-                in_channels = x
-        layers += [nn.AvgPool2d(kernel_size=1, stride=1)]
-        return nn.Sequential(*layers)
 
 
 class MLP(nn.Module):
@@ -294,3 +256,65 @@ class FeedFwdModel(nn.Module):
         # Get predictions using output layer
         out = self.linear3(out)
         return F.log_softmax(out, dim=1)
+        
+CONV_SIZE = 16  
+class DANCNNModel(nn.Module):
+    
+    def __init__(self):
+        super(DANCNNModel, self).__init__()
+        #self.feature = nn.Sequential()
+        self.f_conv1 =  nn.Conv2d(3, CONV_SIZE, kernel_size=5)
+        self.f_bn1   = nn.BatchNorm2d(CONV_SIZE)
+        self.f_pool1 = nn.MaxPool2d(2)
+        self.f_relu1 = nn.ReLU(True)
+        self.f_conv2 = nn.Conv2d(CONV_SIZE, 50, kernel_size=5)
+        self.f_bn2   = nn.BatchNorm2d(50)
+        self.f_drop1 = nn.Dropout2d()
+        self.f_pool2 = nn.MaxPool2d(2)
+        self.f_relu2 = nn.ReLU(True)
+
+        #classifier
+        self.c_fc1   = nn.Linear(50 * 4 * 4, 100)
+        self.c_bn1   =  nn.BatchNorm1d(100)
+        self.c_relu1 = nn.ReLU(True)
+        self.c_drop1 = nn.Dropout()
+        self.c_fc2   = nn.Linear(100, 100)
+        self.c_bn2   = nn.BatchNorm1d(100)
+        self.c_relu2 = nn.ReLU(True)
+        self.c_fc3   = nn.Linear(100, 10)
+        self.c_softmax = nn.LogSoftmax(dim=1)
+
+        '''
+        self.domain_classifier = nn.Sequential()
+        self.domain_classifier.add_module('d_fc1', nn.Linear(50 * 4 * 4, 100))
+        self.domain_classifier.add_module('d_bn1', nn.BatchNorm1d(100))
+        self.domain_classifier.add_module('d_relu1', nn.ReLU(True))
+        self.domain_classifier.add_module('d_fc2', nn.Linear(100, 2))
+        self.domain_classifier.add_module('d_softmax', nn.LogSoftmax(dim=1))
+        '''
+        
+    #xdef forward(self, input_data, alpha):
+    def forward(self, input_data):
+        #input_data = input_data.expand(input_data.data.shape[0], 3, 28, 28)
+        out = self.f_conv1(input_data)
+        out = self.f_bn1(out)
+        out = self.f_pool1(out)
+        out = self.f_relu1(out)
+        out = self.f_conv2(out)
+        out = self.f_bn2(out)
+        out = self.f_drop1(out)
+        out = self.f_pool2(out)
+        feature = self.f_relu2(out)
+
+        feature = feature.view(-1, 50 * 4 * 4)
+        out = self.c_fc1(feature)
+        out = self.c_bn1(out)
+        out = self.c_relu1(out)
+        out = self.c_drop1(out)
+        out = self.c_fc2(out)
+        out = self.c_bn2(out)
+        out = self.c_relu2(out)
+        out = self.c_fc3(out)
+        class_output = self.c_softmax(out)
+
+        return class_output#, domain_output

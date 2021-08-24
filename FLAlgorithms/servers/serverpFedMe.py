@@ -9,9 +9,9 @@ import numpy as np
 # Implementation for pFedMe Server
 
 class pFedMe(Server):
-    def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters,
+    def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, robust, L_k, num_glob_iters,
                  local_epochs, optimizer, num_users, K, personal_learning_rate, times, cutoff):
-        super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, beta, L_k, num_glob_iters,
+        super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, robust, L_k, num_glob_iters,
                          local_epochs, optimizer, num_users, times)
 
         # Initialize data for all  users
@@ -29,7 +29,7 @@ class pFedMe(Server):
                 if(i in randomList):
                     train, test = self.get_data(train, test)
                     
-            user = UserpFedMe(device, id, train, test, model, batch_size, learning_rate, beta, L_k, local_epochs, optimizer, K, personal_learning_rate)
+            user = UserpFedMe(device, id, train, test, model, batch_size, learning_rate, robust, L_k, local_epochs, optimizer, K, personal_learning_rate)
             self.users.append(user)
             self.total_train_samples += user.train_samples
         print("Number of users / total users:",num_users, " / " ,total_users)
