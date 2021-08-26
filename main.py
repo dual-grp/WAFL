@@ -10,6 +10,15 @@ import torch
 torch.manual_seed(0)
 from utils.options import args_parser
 
+
+# from dotenv import load_dotenv
+
+# load_dotenv()
+
+# COMMET_APIKEY = os.getenv('COMMET_APIKEY')
+# COMMET_PROJECT_NAME = os.getenv('COMMET_PROJECT_NAME')
+# COMMET_WORKSPACE = os.getenv('COMMET_WORKSPACE')
+
 # import comet_ml at the top of your file
 
 # Create an experiment with your api key:
@@ -47,6 +56,7 @@ def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamm
     average_data(num_users=numusers, loc_ep1=local_epochs, Numb_Glob_Iters=num_glob_iters, lamb=gamma,learning_rate=learning_rate, robust = robust, algorithms=algorithm, batch_size=batch_size, dataset=dataset[0], k = K,times = times)
 
 if __name__ == "__main__":
+
     args = args_parser()
     print("=" * 80)
     print("Summary of training process:")
@@ -64,22 +74,25 @@ if __name__ == "__main__":
     if(args.commet):
         # Create an experiment with your api key:
         experiment = Experiment(
-            api_key="VtHmmkcG2ngy1isOwjkm5sHhP",
-            project_name="domain-adaptation",
-            workspace="federated-learning-exp",
+            api_key="aQak2eoGkGL9TUZgUIJtX4MzE",
+            project_name="wdro-fl",
+            workspace="longtanle",
         )
 
         hyper_params = {
-            "dataset":args.dataset,
+            "dataset":[args.dataset, args.target],
             "algorithm" : args.algorithm,
             "model":args.model,
             "batch_size":args.batch_size,
             "learning_rate":args.learning_rate,
-            "target" : args.target, 
-            "L_k" : args.L_k,
+            "robust" : args.robust, 
+            "gamma"  : args.gamma, 
+            # "L_k" : args.L_k,
             "num_glob_iters":args.num_global_iters,
             "local_epochs":args.local_epochs,
-            "numusers": args.subusers,
+            "sub_users": args.subusers,
+            "numusers": args.numusers,
+            "K" : args.K,
             "times" : args.times,
             "gpu": args.gpu,
         }
