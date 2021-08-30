@@ -174,24 +174,26 @@ class User:
             loss.backward()
             sign = delta.grad.detach().sign()
             delta.data = (delta + alpha*delta.grad.detach().sign()).clamp(-epsilon,epsilon)
+            norm_grad = torch.norm(delta.grad)
             delta.grad.zero_()
         temp = delta.detach()
         return X + temp
 
-    def wasssertein(self, X, y, epsilon = 0.0005, alpha = 0.01, num_iter = 20):
+    def wasssertein(self, X, y, alpha = 10, num_iter = 10):
         ' Construct FGSM adversarial examples on the examples X'
-        X_adv = X.clone() + torch.rand(X.shape).clamp(-epsilon,epsilon).to(self.device)
+        X_adv = X.clone() #+ torch.rand(X.shape).clamp(-epsilon,epsilon).to(self.device)
         X_adv.requires_grad_(True)
         for t in range(num_iter):
             loss1 = self.loss(self.model(X_adv), y)
             loss2 = 0.5 * self.gamma * torch.norm(X_adv - X)**2 / len(X_adv)
             loss = loss1 - loss2
             loss.backward()
-            X_adv.data = (X_adv.data + len(X_adv) * X_adv.grad)
+            X_adv.data = (X_adv.data + alpha * len(X_adv) * X_adv.grad)
             #delta = X_adv - X
-            #norm_delta = torch.norm(delta)
+            norm_delta = torch.norm(X_adv - X)
             #norm_grad = torch.norm(X_adv.grad)
-            if(torch.norm(X_adv.grad) < 1e-4):
+            norm_grad = torch.norm(X_adv.grad)
+            if(norm_grad < 1e-4):
                 break
             X_adv.grad.zero_()
         return X_adv

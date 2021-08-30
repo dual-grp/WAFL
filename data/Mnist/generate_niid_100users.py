@@ -9,7 +9,7 @@ import os
 random.seed(1)
 np.random.seed(1)
 NUM_USERS = 100  
-NUM_LABELS = 2
+NUM_LABELS = 3
 # Setup directory for train/test data
 train_path = './data/train/mnist_train.json'
 test_path = './data/test/mnist_test.json'
@@ -66,7 +66,7 @@ for user in trange(NUM_USERS):
         num_samples = int(props[l, user//int(NUM_USERS/10), j])
         numran1 = random.randint(10, 100)
         numran2 = random.randint(1, 10)
-        num_samples = (num_samples) * numran2 + numran1 + 150
+        num_samples = (num_samples) * numran2 + numran1 + 50
         if(NUM_USERS <= 20): 
             num_samples = num_samples * 2
         if idx[l] + num_samples < len(mnist_data[l]):

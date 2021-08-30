@@ -2,14 +2,14 @@ import torch
 import os
 import torch.multiprocessing as mp
 
-from FLAlgorithms.users.useravg import UserAVG
+from FLAlgorithms.users.useravgAT import UserAVGAT
 from FLAlgorithms.servers.serverbase import Server
 from utils.model_utils import read_data, read_domain_data
 import numpy as np
 import copy
 # Implementation for FedAvg Server
 
-class FedAvg(Server):
+class FedAvgAT(Server):
     def __init__(self, experiment, device, dataset,algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users,  times):
         super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, robust, gamma, num_glob_iters,local_epochs, sub_users, num_users, times)
 
@@ -17,7 +17,7 @@ class FedAvg(Server):
         if(num_users == 1):
             i = 0
             train , test = dataset[2][i]
-            user = UserAVG(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs)
+            user = UserAVGAT(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs)
             self.target_domain = user
             user.set_target()
             self.users.append(user)
@@ -25,7 +25,7 @@ class FedAvg(Server):
             return
         for i in range(num_users):
             train , test = dataset[2][i]
-            user = UserAVG(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs)
+            user = UserAVGAT(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs)
             if(i == dataset[1] or (i == num_users-1 and dataset[1] < 0)):
                 self.target_domain = user
                 user.set_target()
