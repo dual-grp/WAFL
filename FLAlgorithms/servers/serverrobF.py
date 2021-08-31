@@ -15,7 +15,7 @@ class FedRob(Server):
 
         # Initialize data for all  users
         if(dataset[0] == "Cifar10"):
-            self.adv_option = [[8/255],[2/255]]
+            self.adv_option = [8/255,2/255]
         elif(dataset[0] == "Mnist" or dataset[0] == "EMNIST"):
             self.adv_option = [0.3,0.01]
         else:

@@ -166,7 +166,7 @@ class User:
         loss.backward()
         return X + epsilon * delta.grad.detach().sign()
         
-    def pgd_linf(self, X, y, epsilon = 0.3, alpha = 0.01, num_iter = 10):
+    def pgd_linf(self, X, y, epsilon = 0.3, alpha = 0.01, num_iter = 40):
         #epsilon = 8/255, alpha = 2/255 for cifar
         #epsilon = 0.3, 0.01 for MNIST, FE-MNIST
         ' Construct FGSM adversarial examples on the examples X'
@@ -190,7 +190,7 @@ class User:
             loss2 = 0.5 * self.gamma * torch.norm(X_adv - X)**2 / len(X_adv)
             loss = loss1 - loss2
             loss.backward()
-            X_adv.data = (X_adv.data + 5* len(X_adv) * X_adv.grad)
+            X_adv.data = (X_adv.data + alpha* len(X_adv) * X_adv.grad)
             # delta = X_adv - X
             norm_delta = torch.norm(X_adv - X)
             # norm_grad = torch.norm(X_adv.grad)
