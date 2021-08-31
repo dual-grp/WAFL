@@ -53,7 +53,7 @@ class DNN(nn.Module):
         x = torch.flatten(x, 1)
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
-        x = F.log_softmax(x, dim=1)
+        #x = F.log_softmax(x, dim=1)
         return x
 
 class DNN2(nn.Module):
@@ -70,7 +70,7 @@ class DNN2(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
-        x = F.log_softmax(x, dim=1)
+        #x = F.log_softmax(x, dim=1)
         return x
 #################################
 ##### Neural Network model #####
@@ -158,7 +158,7 @@ class CNNCifar(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
-        return F.log_softmax(x, dim=1)
+        return x
 
 class Mclr_Logistic(nn.Module):
     def __init__(self, input_dim = 784, output_dim = 10):
@@ -169,8 +169,8 @@ class Mclr_Logistic(nn.Module):
     def forward(self, x):
         x = torch.flatten(x, 1)
         x = self.fc1(x)
-        output = F.log_softmax(x, dim=1)
-        return output
+        #output = F.log_softmax(x, dim=1)
+        return x
 
 class LogisticModel(nn.Module):
     def __init__(self):
@@ -180,8 +180,8 @@ class LogisticModel(nn.Module):
     def forward(self, xb):
         xb = xb.reshape(-1, 2352)
         out = self.linear(xb)
-        output = F.log_softmax(out, dim=1)
-        return output
+        #output = F.log_softmax(out, dim=1)
+        return out
 
 class CnnModel(nn.Module):
     def __init__(self):
@@ -255,7 +255,7 @@ class FeedFwdModel(nn.Module):
         out = F.relu(out)
         # Get predictions using output layer
         out = self.linear3(out)
-        return F.log_softmax(out, dim=1)
+        return out#F.log_softmax(out, dim=1)
         
 CONV_SIZE = 16  
 class DANCNNModel(nn.Module):
@@ -314,6 +314,6 @@ class DANCNNModel(nn.Module):
         out = self.c_bn2(out)
         out = self.c_relu2(out)
         out = self.c_fc3(out)
-        class_output = self.c_softmax(out)
+        #class_output = self.c_softmax(out)
 
-        return class_output#, domain_output
+        return out#class_output#, domain_output

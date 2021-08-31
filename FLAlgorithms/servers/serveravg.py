@@ -14,22 +14,25 @@ class FedAvg(Server):
         super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, robust, gamma, num_glob_iters,local_epochs, sub_users, num_users, times)
 
         # Initialize data for all  users
-        if(num_users == 1):
-            i = 0
-            train , test = dataset[2][i]
-            user = UserAVG(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs)
-            self.target_domain = user
-            user.set_target()
-            self.users.append(user)
-            self.total_train_samples += user.train_samples
-            return
+        #if(num_users == 1):
+        #    i = 0
+        #    train , test = dataset[2][i]
+        #    user = UserAVG(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs)
+        #    self.target_domain = user
+        #    user.set_target()
+        #    self.users.append(user)
+        #    self.total_train_samples += user.train_samples
+        #    return
+        self.target_domain = None
+        
         for i in range(num_users):
             train , test = dataset[2][i]
             user = UserAVG(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs)
-            if(i == dataset[1] or (i == num_users-1 and dataset[1] < 0)):
-                self.target_domain = user
-                user.set_target()
-                continue
+            if(self.robust <= 0): # no robust, domain option
+                if(i == dataset[1] or (i == num_users-1 and dataset[1] < 0)):
+                    self.target_domain = user
+                    user.set_target()
+                    continue
             self.users.append(user)
             self.total_train_samples += user.train_samples
             
@@ -57,11 +60,13 @@ class FedAvg(Server):
 
             # Evaluate model each interation
             self.evaluate()
-            self.evaluate_on_target()
-            
+
+            if(self.robust <= 0):
+                self.evaluate_on_target()
+
             if(self.robust > 0):
-                self.evaluate_robust('pgd', self.robust, glob_iter)
-            #self.evaluate_robust('fgsm')
+                self.evaluate_robust('pgd', self.robust, glob_iter,self.adv_option)
+                #self.evaluate_robust('fgsm')
 
             # Select subset of user for training
             self.selected_users = self.select_users(glob_iter, self.sub_users)

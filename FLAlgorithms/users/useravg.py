@@ -12,11 +12,7 @@ class UserAVG(User):
     def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, robust, gamma, local_epochs):
         super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, robust, gamma, local_epochs)
 
-        if(model[1] == "Mclr_CrossEntropy"):
-            self.loss = nn.CrossEntropyLoss()
-        else:
-            self.loss = nn.NLLLoss()
-
+        self.loss = nn.CrossEntropyLoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
 
     def train(self, epochs):

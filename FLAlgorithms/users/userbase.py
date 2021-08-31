@@ -86,15 +86,15 @@ class User:
             test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
         return test_acc, y.shape[0]
 
-    def test_robust(self, attack_mode = 'pgd'):
+    def test_robust(self, attack_mode = 'pgd', adv_option = [0,0]):
         self.model.eval()
         test_acc = 0
         for x, y in self.testloaderfull:
             x, y = x.to(self.device), y.to(self.device)
             if(attack_mode == 'pgd'):
-                x = self.pgd_linf(X = x, y = y)
+                x = self.pgd_linf(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1])
             elif(attack_mode == 'fgsm'):
-                x = self.fgsm(X = x, y = y)
+                x = self.fgsm(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1])
             output = self.model(x)
             test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
         return test_acc, y.shape[0]
@@ -167,6 +167,8 @@ class User:
         return X + epsilon * delta.grad.detach().sign()
         
     def pgd_linf(self, X, y, epsilon = 0.3, alpha = 0.01, num_iter = 10):
+        #epsilon = 8/255, alpha = 2/255 for cifar
+        #epsilon = 0.3, 0.01 for MNIST, FE-MNIST
         ' Construct FGSM adversarial examples on the examples X'
         delta = torch.zeros_like(X, requires_grad=True).to(self.device)
         for t in range(num_iter):
@@ -188,10 +190,10 @@ class User:
             loss2 = 0.5 * self.gamma * torch.norm(X_adv - X)**2 / len(X_adv)
             loss = loss1 - loss2
             loss.backward()
-            X_adv.data = (X_adv.data + alpha * len(X_adv) * X_adv.grad)
-            #delta = X_adv - X
+            X_adv.data = (X_adv.data + 5* len(X_adv) * X_adv.grad)
+            # delta = X_adv - X
             norm_delta = torch.norm(X_adv - X)
-            #norm_grad = torch.norm(X_adv.grad)
+            # norm_grad = torch.norm(X_adv.grad)
             norm_grad = torch.norm(X_adv.grad)
             if(norm_grad < 1e-4):
                 break
@@ -204,10 +206,9 @@ class User:
             loss = self.loss(self.model(X + delta), y)
             loss.backward()
             delta.data += alpha*delta.grad.detach() / self.norms(delta.grad.detach())
-            delta.data = torch.min(torch.max(delta.detach(), -X), 1-X) # clip X+delta to [0,1]
+            delta.data = torch.min(torch.max(delta.detach(), -X), 1-X) #clip X+delta to [0,1]
             delta.data *= epsilon / self.norms(delta.detach()).clamp(min=epsilon)
             delta.grad.zero_()
-            
         return delta.detach()
 
     @staticmethod

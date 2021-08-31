@@ -36,6 +36,9 @@ def get_model(args):
     elif(args.model == "cnn"):
         if(args.dataset == "Cifar10"):
             model = CNNCifar().to(args.device)
+            #model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', pretrained=True).to(args.device)
+            #model.classifier[4] = torch.nn.Linear(4096,1024)
+            #model.classifier[6] = torch.nn.Linear(1024,10)
     else:
         exit('Error: unrecognized model')
     return model,args.model
