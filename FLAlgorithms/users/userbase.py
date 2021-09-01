@@ -159,7 +159,7 @@ class User:
         model_path = os.path.join("models", self.dataset)
         self.model = torch.load(os.path.join(model_path, "server" + ".pt"))
 
-    def fgsm(self, X, y, epsilon):
+    def fgsm(self, X, y, epsilon = 0.3, alpha = 1):
         """ Construct FGSM adversarial examples on the examples X"""
         delta = torch.zeros_like(X, requires_grad=True)
         loss = self.loss(self.model(X + delta), y)
