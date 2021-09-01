@@ -23,6 +23,13 @@ class FedAvg(Server):
         #    self.users.append(user)
         #    self.total_train_samples += user.train_samples
         #    return
+        if(dataset[0] == "Cifar10"):
+            self.adv_option = [8/255,2/255]
+        elif(dataset[0] == "Mnist" or dataset[0] == "EMNIST"):
+            self.adv_option = [0.3,0.01]
+        else:
+            self.adv_option = [0,0]
+            
         self.target_domain = None
         
         for i in range(num_users):
