@@ -35,7 +35,7 @@ class FedRob(Server):
         for i in range(num_users):
             train , test = dataset[2][i]
             user = UserRobF(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs)
-            if(self.robust <= 0): # no robust, domain option
+            if(self.robust < 0): # no robust, domain option
                 if(i == dataset[1] or (i == num_users-1 and dataset[1] < 0)):
                     self.target_domain = user
                     user.set_target()
@@ -57,7 +57,7 @@ class FedRob(Server):
             # Evaluate model each interation
             self.evaluate()
 
-            if(self.robust <= 0):
+            if(self.robust < 0):
                 self.evaluate_on_target()
 
             if(self.robust > 0):
