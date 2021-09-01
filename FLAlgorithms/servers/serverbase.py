@@ -116,7 +116,7 @@ class Server:
             return self.users
         num_users = int(fac_users * len(self.users))
         num_users = min(num_users, len(self.users))
-        #np.random.seed(round)
+        np.random.seed(round * (self.times + 2))
         return np.random.choice(self.users, num_users, replace=False) #, p=pk)
 
     # Save loss, accurancy to h5 fiel
