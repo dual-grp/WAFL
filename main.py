@@ -50,7 +50,7 @@ def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamm
         server.train()
         server.test()
 
-    #average_data(num_users=numusers, loc_ep1=local_epochs, Numb_Glob_Iters=num_glob_iters, lamb=gamma,learning_rate=learning_rate, robust = robust, algorithms=algorithm, batch_size=batch_size, dataset=dataset[0], k = K,times = times)
+    average_data(num_users=numusers, loc_ep1=local_epochs, Numb_Glob_Iters=num_glob_iters, lamb=gamma,learning_rate=learning_rate, robust = robust, algorithms=algorithm, batch_size=batch_size, dataset=dataset[0], k = K,times = times)
 
 if __name__ == "__main__":
     args = args_parser()

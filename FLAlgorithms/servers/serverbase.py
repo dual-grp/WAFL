@@ -212,8 +212,7 @@ class Server:
 
         if(attack_mode == 'pgd'):
             robust_glob_acc_pgd = np.sum(stats[2])*1.0/np.sum(stats[1])
-            self.robust_acc_pgd = []
-            self.robust_acc_pgd.append(robust_glob_acc_pgd)
+            self.robust_glob_acc_pgd.append(robust_glob_acc_pgd)
             if(self.experiment):
                 self.experiment.log_metric("robust_acc_pgd",robust_glob_acc_pgd)
             #print("stats_train[1]",stats_train[3][0])
@@ -221,8 +220,7 @@ class Server:
 
         if(attack_mode == 'fgsm'):
             robust_glob_acc_fgsm = np.sum(stats[2])*1.0/np.sum(stats[1])
-            self.robust_acc_fgsm = []
-            self.robust_acc_fgsm.append(robust_glob_acc_fgsm)
+            self.robust_glob_acc_fgsm.append(robust_glob_acc_fgsm)
             if(self.experiment):
                 self.experiment.log_metric("robust_acc_fdsm",robust_glob_acc_fgsm)
             #print("stats_train[1]",stats_train[3][0])
