@@ -54,7 +54,7 @@ class FedAvg(Server):
         for glob_iter in range(self.num_glob_iters):
             if(self.experiment):
                 self.experiment.set_epoch( glob_iter + 1)
-            print("-------------Round number: ",glob_iter, " -------------")
+            print("-------------Round number: FedAvg",glob_iter, " -------------")
 
             self.send_parameters()
 

@@ -50,7 +50,7 @@ class FedRob(Server):
         for glob_iter in range(self.num_glob_iters):
             if(self.experiment):
                 self.experiment.set_epoch( glob_iter + 1)
-            print("-------------Round number: ",glob_iter, " -------------")
+            print("-------------Round number FedRob: ",glob_iter, " -------------")
             #loss_ = 0
             self.send_parameters()
 
