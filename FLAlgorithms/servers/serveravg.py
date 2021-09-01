@@ -72,8 +72,9 @@ class FedAvg(Server):
                 self.evaluate_on_target()
 
             if(self.robust > 0):
-                self.evaluate_robust('pgd', self.robust, glob_iter, self.adv_option)
-                self.evaluate_robust('fgsm', self.robust, glob_iter, self.adv_option)
+                self.adv_users = self.select_users(glob_iter, self.robust)
+                self.evaluate_robust('pgd', self.adv_option)
+                self.evaluate_robust('fgsm', self.adv_option)
 
             # Select subset of user for training
             self.selected_users = self.select_users(glob_iter, self.sub_users)

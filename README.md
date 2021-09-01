@@ -24,11 +24,26 @@ All dataset after downloading must be stored at folder \data
 # Training Adversarial
     - For Mnist dataset: Before running experiment, need to run generate_niid_100users.py to generate MNIST dataset
 
-    <pre><code>
-    python3 main.py --dataset Mnist --model mclr --batch_size 128 --learning_rate 0.001 --gamma 0.1 --num_global_iters 200 --local_epochs 2 --algorithm FedRob --subusers 0.1 --numusers 100 --times 1
-    python3 main.py --dataset Mnist --model mclr --batch_size 128 --learning_rate 0.001 --robust 0 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.1 --numusers 100 --times 1 
-    python3 main.py --dataset Mnist --model mclr --batch_size 128 --learning_rate 0.001 --robust 1 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.1 --numusers 100 --times 1 
+<pre><code>
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.1 --gamma 0.1 --num_global_iters 200 --local_epochs 2 --algorithm FedRob --subusers 0.1 --numusers 100 --times 1
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.1 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.1 --numusers 100 --times 1
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.1 --num_global_iters 200 --local_epochs 2 --algorithm FedAvgAT --subusers 0.1 --numusers 100 --times 1
 
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.3 --gamma 0.1 --num_global_iters 200 --local_epochs 2 --algorithm FedRob --subusers 0.1 --numusers 100 --times 1
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.3 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.1 --numusers 100 --times 1
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.3 --num_global_iters 200 --local_epochs 2 --algorithm FedAvgAT --subusers 0.1 --numusers 100 --times 1
+
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.5 --gamma 0.1 --num_global_iters 200 --local_epochs 2 --algorithm FedRob --subusers 0.1 --numusers 100 --times 1
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.5 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.1 --numusers 100 --times 1
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.5 --num_global_iters 200 --local_epochs 2 --algorithm FedAvgAT --subusers 0.1 --numusers 100 --times 1
+    
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.7 --gamma 0.1 --num_global_iters 200 --local_epochs 2 --algorithm FedRob --subusers 0.1 --numusers 100 --times 1
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.7 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.1 --numusers 100 --times 1
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.7 --num_global_iters 200 --local_epochs 2 --algorithm FedAvgAT --subusers 0.1 --numusers 100 --times 1
+
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.9 --gamma 0.1 --num_global_iters 200 --local_epochs 2 --algorithm FedRob --subusers 0.1 --numusers 100 --times 1
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.9 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.1 --numusers 100 --times 1
+    python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0.9 --num_global_iters 200 --local_epochs 2 --algorithm FedAvgAT --subusers 0.1 --numusers 100 --times 1
     </code></pre>
 
 

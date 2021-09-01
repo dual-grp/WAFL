@@ -24,7 +24,7 @@ class Server:
         self.robust = robust
         self.L_k = L_k
         self.algorithm = algorithm
-        self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc, self.rs_target_acc, self.robust_acc = [], [], [], [], []
+        self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc, self.rs_target_acc, self.robust_acc , self.robust_glob_acc_pgd, self.robust_glob_acc_fgsm = [], [], [], [], [] , [] , []
         self.times = times
         self.experiment = experiment
         self.sub_data = 0
@@ -136,6 +136,8 @@ class Server:
                 hf.create_dataset('rs_train_acc', data=self.rs_train_acc)
                 hf.create_dataset('rs_train_loss', data=self.rs_train_loss)
                 hf.create_dataset('rs_target_acc', data=self.rs_target_acc)
+                hf.create_dataset('rs_robust_pgd_acc', data=self.robust_glob_acc_pgd)
+                hf.create_dataset('rs_robust_fgsm_acc', data=self.robust_glob_acc_fgsm)
                 hf.close()
 
     def test(self):
@@ -151,17 +153,15 @@ class Server:
         ids = [c.id for c in self.users]
         return ids, num_samples, tot_correct
 
-    def test_robust(self, attack_mode = 'pgd', adv_client = 0.5, index = 0, adv_option = [0.3, 0.01]):
+    def test_robust(self, attack_mode = 'pgd', adv_option = [0.3, 0.01]):
         'can choose a fraction of user which is attattack: let say just choose 30-> 50% clients are attracked'
         robust_correct = []
         num_samples = []
         # choose a subset number of clients be attack-clients
-        self.adv_users = self.select_users(index, adv_client)
         list_attack = []
-
         for c in self.adv_users:
             list_attack.append(c.id)
-            ct, ns = c.test_robust(attack_mode,adv_option)
+            ct, ns = c.test_robust(attack_mode, adv_option)
             robust_correct.append(ct*1.0)
             num_samples.append(ns)
 
@@ -207,14 +207,26 @@ class Server:
         print("Average Global Trainning Accurancy on all Source Domain: ", train_acc)
         print("Average Global Trainning Loss on all Source Domain: ",train_loss)
     
-    def evaluate_robust(self, attack_mode = 'pgd', adv_client = 0.5, index = 0, adv_option = [0.3,0.01]):
-        stats = self.test_robust(attack_mode , adv_client, index, adv_option)  
-        robust_glob_acc = np.sum(stats[2])*1.0/np.sum(stats[1])
-        self.robust_acc.append(robust_glob_acc)
-        if(self.experiment):
-            self.experiment.log_metric("robust_acc",robust_glob_acc)
-        #print("stats_train[1]",stats_train[3][0])
-        print("Average Robust Global Accurancy on all: ", robust_glob_acc)
+    def evaluate_robust(self, attack_mode = 'pgd', adv_option = [0.3, 0.01]):
+        stats = self.test_robust(attack_mode, adv_option)
+
+        if(attack_mode == 'pgd'):
+            robust_glob_acc_pgd = np.sum(stats[2])*1.0/np.sum(stats[1])
+            self.robust_acc_pgd = []
+            self.robust_acc_pgd.append(robust_glob_acc_pgd)
+            if(self.experiment):
+                self.experiment.log_metric("robust_acc_pgd",robust_glob_acc_pgd)
+            #print("stats_train[1]",stats_train[3][0])
+            print("Average robust pgd accurancy on all: ", robust_glob_acc_pgd)
+
+        if(attack_mode == 'fgsm'):
+            robust_glob_acc_fgsm = np.sum(stats[2])*1.0/np.sum(stats[1])
+            self.robust_acc_fgsm = []
+            self.robust_acc_fgsm.append(robust_glob_acc_fgsm)
+            if(self.experiment):
+                self.experiment.log_metric("robust_acc_fdsm",robust_glob_acc_fgsm)
+            #print("stats_train[1]",stats_train[3][0])
+            print("Average robust fgsm accurancy on all: ", robust_glob_acc_fgsm)
 
     def evaluate_on_target(self):
         # evaluate 
