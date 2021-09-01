@@ -156,7 +156,7 @@ class Server:
         robust_correct = []
         num_samples = []
         # choose a subset number of clients be attack-clients
-        self.adv_users = self.select_users(index, self.sub_users)
+        self.adv_users = self.select_users(index, adv_client)
         list_attack = []
 
         for c in self.adv_users:
