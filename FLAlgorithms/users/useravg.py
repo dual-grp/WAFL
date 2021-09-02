@@ -13,8 +13,8 @@ class UserAVG(User):
         super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, robust, gamma, local_epochs)
 
         self.loss = nn.CrossEntropyLoss()
-        #self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
+        #self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
     def train(self, epochs):
         LOSS = 0
