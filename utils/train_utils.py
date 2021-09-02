@@ -14,9 +14,11 @@ def get_model(args):
             model = Mclr_Logistic(60,10).to(args.device)
         elif(args.dataset == "fiveDigit"):
             model = LogisticModel().to(args.device)
-        else:#(dataset == "Mnist"):
+        elif(args.dataset == "Mnist"):
             model = Mclr_Logistic().to(args.device)
-
+        elif(args.dataset == "Mnist"):   
+            model = Mclr_Logistic(784,62).to(args.device)
+        
     elif(args.model == "dnn"):
         if(args.dataset == "human_activity"):
             model = DNN(561,100,12).to(args.device)
@@ -29,13 +31,14 @@ def get_model(args):
         elif(args.dataset == "fiveDigit"):
             model = FeedFwdModel(2352,10).to(args.device)
             #model = DANCNNModel().to(args.device)
-            
         else:#(dataset == "Mnist"):
             model = DNN2().to(args.device)
         
     elif(args.model == "cnn"):
         if(args.dataset == "Cifar10"):
             model = CNNCifar().to(args.device)
+        if(args.dataset == "Emnist"):
+            model = CNNEmnist().to(args.device)
             #model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', pretrained=True).to(args.device)
             #model.classifier[4] = torch.nn.Linear(4096,1024)
             #model.classifier[6] = torch.nn.Linear(1024,10)

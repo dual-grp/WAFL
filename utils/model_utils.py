@@ -362,7 +362,7 @@ def read_domain_data(dataset):
             train_data_i = train_data[id]
             test_data_i = test_data[id]
             X_train, y_train, X_test, y_test = train_data_i['x'], train_data_i['y'], test_data_i['x'], test_data_i['y']
-            if(dataset == "Mnist"):
+            if(dataset == "Mnist" or dataset == "Emnist"):
                 X_train, y_train, X_test, y_test = train_data_i['x'], train_data_i['y'], test_data_i['x'], test_data_i['y']
                 X_train = torch.Tensor(X_train).view(-1, NUM_CHANNELS, IMAGE_SIZE, IMAGE_SIZE).type(torch.float32)
                 y_train = torch.Tensor(y_train).type(torch.int64)
