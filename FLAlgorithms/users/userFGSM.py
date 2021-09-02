@@ -8,7 +8,7 @@ from FLAlgorithms.users.userbase import User
 import numpy as np
 # Implementation for FedAvg clients
 
-class UserAVGAT(User):
+class UserFGSM(User):
     def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, robust, gamma, local_epochs):
         super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, robust, gamma, local_epochs)
 
@@ -22,7 +22,7 @@ class UserAVGAT(User):
             for X,y in self.trainloader:
                 X, y = X.to(self.device), y.long().to(self.device)
                 # Adversarial training
-                X = self.pgd_linf(X = X, y = y, epsilon = adv_option[0], alpha =adv_option[1], num_iter = 10)
+                X = self.fgsm(X = X, y = y, epsilon = adv_option[0], alpha =adv_option[1])
                 self.optimizer.zero_grad()
                 loss = self.loss(self.model(X), y)
                 loss.backward()

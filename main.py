@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 from comet_ml import Experiment
 from FLAlgorithms.servers.serveravg import FedAvg
-from FLAlgorithms.servers.serveravgAT import FedAvgAT
+from FLAlgorithms.servers.serverPGD import FedPGD
+from FLAlgorithms.servers.serverFGSM import FedFGSM
 from FLAlgorithms.servers.serverrobF import FedRob
 from utils.model_utils import read_domain_data
 from FLAlgorithms.trainmodel.models import *
@@ -33,10 +34,15 @@ def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamm
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
             server = FedAvg(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, i)
         
-        elif(algorithm == "FedAvgAT"):
+        elif(algorithm == "FedPGD"):
             if(commet):
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedAvgAT(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, i)
+            server = FedPGD(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, i)
+        
+        elif(algorithm == "FedFGSM"):
+            if(commet):
+                experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
+            server = FedFGSM(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, i)
 
         elif(algorithm == "FedRob"):
             if(commet):

@@ -2,14 +2,14 @@ import torch
 import os
 import torch.multiprocessing as mp
 
-from FLAlgorithms.users.useravgAT import UserAVGAT
+from FLAlgorithms.users.userFGSM import UserFGSM
 from FLAlgorithms.servers.serverbase import Server
 from utils.model_utils import read_data, read_domain_data
 import numpy as np
 import copy
 # Implementation for FedAvg Server
 
-class FedAvgAT(Server):
+class FedFGSM(Server):
     def __init__(self, experiment, device, dataset,algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users,  times):
         super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, robust, gamma, num_glob_iters,local_epochs, sub_users, num_users, times)
 
@@ -21,6 +21,7 @@ class FedAvgAT(Server):
         else:
             self.adv_option = [0,0]
         self.target_domain = None
+
         #if(num_users == 1):
         #    i = 0
         #    train , test = dataset[2][i]
@@ -33,7 +34,7 @@ class FedAvgAT(Server):
         
         for i in range(num_users):
             train , test = dataset[2][i]
-            user = UserAVGAT(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs)
+            user = UserFGSM(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs)
             if(self.robust < 0): # no robust, domain option
                 if(i == dataset[1] or (i == num_users-1 and dataset[1] < 0)):
                     self.target_domain = user
@@ -43,7 +44,7 @@ class FedAvgAT(Server):
             self.total_train_samples += user.train_samples
             
         print("Number of users / total users:",int(sub_users * num_users), " / " ,num_users)
-        print("Finished creating FedAvg server.")
+        print("Finished creating FGSM server.")
 
     def send_grads(self):
         assert (self.users is not None and len(self.users) > 0)
@@ -60,7 +61,7 @@ class FedAvgAT(Server):
         for glob_iter in range(self.num_glob_iters):
             if(self.experiment):
                 self.experiment.set_epoch( glob_iter + 1)
-            print("-------------Round number FedAvgAT: ",glob_iter, " -------------")
+            print("-------------Round number FGSM: ",glob_iter, " -------------")
 
             self.send_parameters()
 
@@ -73,7 +74,7 @@ class FedAvgAT(Server):
             if(self.robust > 0):
                 self.adv_users = self.select_users(glob_iter, self.robust)
                 self.evaluate_robust('pgd', self.adv_option)
-                self.evaluate_robust('fgsm', self.adv_option)
+                #self.evaluate_robust('fgsm', self.adv_option)
 
             # Select subset of user for training
             self.selected_users = self.select_users(glob_iter, self.sub_users)

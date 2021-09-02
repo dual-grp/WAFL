@@ -79,15 +79,18 @@ class User:
     def test(self):
         self.model.eval()
         test_acc = 0
+        loss = 0
         for x, y in self.testloaderfull:
             x, y = x.to(self.device), y.to(self.device)
             #x , y = self.perturb(x, y)
             output = self.model(x)
             test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
-        return test_acc, y.shape[0]
+            loss += self.loss(output, y.long())
+        return test_acc, loss, y.shape[0]
 
     def test_robust(self, attack_mode = 'pgd', adv_option = [0,0]):
         self.model.eval()
+        loss = 0
         test_acc = 0
         for x, y in self.testloaderfull:
             x, y = x.to(self.device), y.to(self.device)
@@ -96,12 +99,14 @@ class User:
             elif(attack_mode == 'fgsm'):
                 x = self.fgsm(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1])
             output = self.model(x)
+            loss += self.loss(output, y.long())
             test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
-        return test_acc, y.shape[0]
+        return test_acc,loss, y.shape[0]
     
     def test_domain(self):
         self.model.eval()
         test_acc = 0
+        
         for x, y in self.testloaderfull:
             x, y = x.to(self.device), y.to(self.device)
             output = self.model(x)

@@ -24,7 +24,7 @@ class Server:
         self.robust = robust
         self.L_k = L_k
         self.algorithm = algorithm
-        self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc, self.rs_target_acc, self.robust_acc , self.robust_glob_acc_pgd, self.robust_glob_acc_fgsm = [], [], [], [], [] , [] , []
+        self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc, self.rs_target_acc, self.rs_test_loss , self.robust_glob_acc_pgd, self.robust_glob_acc_fgsm, self.robust_glob_loss_pgd, self.robust_glob_loss_fgsm = [], [], [], [], [] , [] , [], [], []
         self.times = times
         self.experiment = experiment
         self.sub_data = 0
@@ -135,9 +135,14 @@ class Server:
                 hf.create_dataset('rs_glob_acc', data=self.rs_glob_acc)
                 hf.create_dataset('rs_train_acc', data=self.rs_train_acc)
                 hf.create_dataset('rs_train_loss', data=self.rs_train_loss)
+                hf.create_dataset('rs_test_loss', data=self.rs_train_loss)
+
                 hf.create_dataset('rs_target_acc', data=self.rs_target_acc)
+
                 hf.create_dataset('rs_robust_pgd_acc', data=self.robust_glob_acc_pgd)
+                hf.create_dataset('rs_robust_pgd_loss', data=self.robust_glob_loss_pgd)
                 hf.create_dataset('rs_robust_fgsm_acc', data=self.robust_glob_acc_fgsm)
+                hf.create_dataset('rs_robust_fgsm_loss', data=self.robust_glob_loss_fgsm)
                 hf.close()
 
     def test(self):
@@ -145,13 +150,14 @@ class Server:
         '''
         num_samples = []
         tot_correct = []
-    
+        losses = []
         for c in self.users:
-            ct, ns = c.test()
+            ct,cl, ns = c.test()
             tot_correct.append(ct*1.0)
             num_samples.append(ns)
+            losses.append(cl*1.0)
         ids = [c.id for c in self.users]
-        return ids, num_samples, tot_correct
+        return ids, num_samples, tot_correct, losses
 
     def test_robust(self, attack_mode = 'pgd', adv_option = [0.3, 0.01]):
         'can choose a fraction of user which is attattack: let say just choose 30-> 50% clients are attracked'
@@ -159,19 +165,23 @@ class Server:
         num_samples = []
         # choose a subset number of clients be attack-clients
         list_attack = []
+        losses = []
         for c in self.adv_users:
             list_attack.append(c.id)
-            ct, ns = c.test_robust(attack_mode, adv_option)
+            ct,cl, ns = c.test_robust(attack_mode, adv_option)
             robust_correct.append(ct*1.0)
             num_samples.append(ns)
+            losses.append(cl*1.0)
 
         for c in self.users:
             if c.id not in list_attack:
-                ct, ns = c.test()
+                ct, cl, ns = c.test()
                 robust_correct.append(ct*1.0)
                 num_samples.append(ns)
+                losses.append(cl*1.0)
+
         ids = [c.id for c in self.users]
-        return ids, num_samples, robust_correct
+        return ids, num_samples, robust_correct, losses
 
     def train_error_and_loss(self):
         num_samples = []
@@ -195,36 +205,49 @@ class Server:
         train_acc = np.sum(stats_train[2])*1.0/np.sum(stats_train[1])
         # train_loss = np.dot(stats_train[3], stats_train[1])*1.0/np.sum(stats_train[1])
         train_loss = sum([x * y for (x, y) in zip(stats_train[1], stats_train[3])]).item() / np.sum(stats_train[1])
+        test_loss = sum([x * y for (x, y) in zip(stats[1], stats[3])]).item() / np.sum(stats[1])
         self.rs_glob_acc.append(glob_acc)
         self.rs_train_acc.append(train_acc)
         self.rs_train_loss.append(train_loss)
+        self.rs_test_loss.append(test_loss)
         if(self.experiment):
             self.experiment.log_metric("glob_acc_source",glob_acc)
             self.experiment.log_metric("train_acc_source",train_acc)
             self.experiment.log_metric("train_loss_source",train_loss)
+            self.experiment.log_metric("test_loss_source",test_loss)
         #print("stats_train[1]",stats_train[3][0])
         print("Average Global Accurancy on all Source Domain : ", glob_acc)
         print("Average Global Trainning Accurancy on all Source Domain: ", train_acc)
         print("Average Global Trainning Loss on all Source Domain: ",train_loss)
+        print("Average Global Test Loss on all Source Domain: ",test_loss)
     
     def evaluate_robust(self, attack_mode = 'pgd', adv_option = [0.3, 0.01]):
         stats = self.test_robust(attack_mode, adv_option)
 
         if(attack_mode == 'pgd'):
             robust_glob_acc_pgd = np.sum(stats[2])*1.0/np.sum(stats[1])
+            robust_glob_loss_pgd = sum([x * y for (x, y) in zip(stats[1], stats[3])]).item() / np.sum(stats[1])
             self.robust_glob_acc_pgd.append(robust_glob_acc_pgd)
+            self.robust_glob_loss_pgd.append(robust_glob_loss_pgd)
             if(self.experiment):
                 self.experiment.log_metric("robust_acc_pgd",robust_glob_acc_pgd)
+                self.experiment.log_metric("robust_loss_pgd",robust_glob_loss_pgd)
             #print("stats_train[1]",stats_train[3][0])
             print("Average robust pgd accurancy on all: ", robust_glob_acc_pgd)
+            print("Average robust pgd loss on all: ", robust_glob_loss_pgd)
 
         if(attack_mode == 'fgsm'):
             robust_glob_acc_fgsm = np.sum(stats[2])*1.0/np.sum(stats[1])
             self.robust_glob_acc_fgsm.append(robust_glob_acc_fgsm)
+            robust_glob_loss_fgsm = sum([x * y for (x, y) in zip(stats[1], stats[3])]).item() / np.sum(stats[1])
+            self.robust_glob_loss_fgsm.append(robust_glob_loss_pgd)
             if(self.experiment):
-                self.experiment.log_metric("robust_acc_fdsm",robust_glob_acc_fgsm)
+                self.experiment.log_metric("robust_acc_fgsm",robust_glob_acc_fgsm)
+                self.experiment.log_metric("robust_loss_fgsm",robust_glob_loss_fgsm)
             #print("stats_train[1]",stats_train[3][0])
             print("Average robust fgsm accurancy on all: ", robust_glob_acc_fgsm)
+            print("Average robust fgsm loss on all: ", robust_glob_loss_fgsm)
+
 
     def evaluate_on_target(self):
         # evaluate 
