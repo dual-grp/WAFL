@@ -21,6 +21,6 @@ def args_parser():
     parser.add_argument("--K", type=int, default=10, help="Computation steps")
     parser.add_argument("--times", type=int, default=1, help="running time")
     parser.add_argument("--commet", type=int, default=0, help="log data to commet")
-    parser.add_argument("--gpu", type=int, default=1, help="Which GPU to run the experiments")
+    parser.add_argument("--gpu", type=int, default=0, help="Which GPU to run the experiments")
     args = parser.parse_args()
     return args
