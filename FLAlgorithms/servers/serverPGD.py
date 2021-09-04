@@ -19,7 +19,7 @@ class FedPGD(Server):
         elif(dataset[0] == "Mnist"):
             self.adv_option = [0.3,0.01,40,10]
         elif(dataset[0] == "Emnist"):
-            self.adv_option = [0.3,0.01,40,5]
+            self.adv_option = [0.3,0.01,20,5]
         else:
             self.adv_option = [0,0,0,0]
 
