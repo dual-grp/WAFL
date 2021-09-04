@@ -9,7 +9,7 @@ import numpy as np
 # Implementation for FedAvg clients
 
 class UserFGSM(User):
-    def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, robust, gamma, local_epochs):
+    def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, robust, gamma, local_epochs, K):
         super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, robust, gamma, local_epochs)
 
         self.loss = nn.CrossEntropyLoss() 

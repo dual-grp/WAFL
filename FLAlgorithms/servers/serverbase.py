@@ -159,7 +159,7 @@ class Server:
         ids = [c.id for c in self.users]
         return ids, num_samples, tot_correct, losses
 
-    def test_robust(self, attack_mode = 'pgd', adv_option = [0.3, 0.01]):
+    def test_robust(self, attack_mode = 'pgd', adv_option = [0.3, 0.01, 40]):
         'can choose a fraction of user which is attattack: let say just choose 30-> 50% clients are attracked'
         robust_correct = []
         num_samples = []

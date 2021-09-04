@@ -10,16 +10,18 @@ import copy
 # Implementation for FedAvg Server
 
 class FedRob(Server):
-    def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users, times):
+    def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users, K, times):
         super().__init__(experiment, device, dataset, algorithm, model[0], batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users, times)
 
-        # Initialize data for all  users
+        # Initialize adver options
         if(dataset[0] == "Cifar10"):
-            self.adv_option = [8/255,2/255]
-        elif(dataset[0] == "Mnist" or dataset[0] == "Emnist"):
-            self.adv_option = [0.3,0.01]
+            self.adv_option = [8/255,2/255,10,10]
+        elif(dataset[0] == "Mnist"):
+            self.adv_option = [0.3,0.01,40,10]
+        elif(dataset[0] == "Emnist"):
+            self.adv_option = [0.3,0.01,40,5]
         else:
-            self.adv_option = [0,0]
+            self.adv_option = [0,0,0,0]
 
         #if(num_users == 1):
         #    i = 0
@@ -34,7 +36,7 @@ class FedRob(Server):
         
         for i in range(num_users):
             train , test = dataset[2][i]
-            user = UserRobF(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs)
+            user = UserRobF(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs, K)
             if(self.robust < 0): # no robust, domain option
                 if(i == dataset[1] or (i == num_users-1 and dataset[1] < 0)):
                     self.target_domain = user
@@ -68,7 +70,7 @@ class FedRob(Server):
             # Select subset of user for training
             self.selected_users = self.select_users(glob_iter, self.sub_users)
             for user in self.selected_users:
-                user.train(self.local_epochs)
+                user.train(self.adv_option[-1])
 
             self.aggregate_parameters(self.selected_users)
             

@@ -15,8 +15,7 @@ from utils.options import args_parser
 # import comet_ml at the top of your file
 
 # Create an experiment with your api key:
-def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamma, num_glob_iters,
-         local_epochs, sub_user, numusers, K, times, commet, gpu):
+def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, K, times, commet, gpu):
     
     # Get device status: Check GPU or CPU
     device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
@@ -37,17 +36,17 @@ def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamm
         elif(algorithm == "FedPGD"):
             if(commet):
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedPGD(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, i)
+            server = FedPGD(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, K, i)
         
         elif(algorithm == "FedFGSM"):
             if(commet):
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedFGSM(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, i)
+            server = FedFGSM(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, K, i)
 
         elif(algorithm == "FedRob"):
             if(commet):
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedRob(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, i)
+            server = FedRob(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, K, i)
 
         else:
             print("Algorithm is invalid")

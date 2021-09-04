@@ -88,14 +88,14 @@ class User:
             loss += self.loss(output, y.long())
         return test_acc, loss, y.shape[0]
 
-    def test_robust(self, attack_mode = 'pgd', adv_option = [0,0]):
+    def test_robust(self, attack_mode = 'pgd', adv_option = [0,0,0]):
         self.model.eval()
         loss = 0
         test_acc = 0
         for x, y in self.testloaderfull:
             x, y = x.to(self.device), y.to(self.device)
             if(attack_mode == 'pgd'):
-                x = self.pgd_linf(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1])
+                x = self.pgd_linf(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1], num_iter = adv_option[2])
             elif(attack_mode == 'fgsm'):
                 x = self.fgsm(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1])
             output = self.model(x)
