@@ -171,17 +171,27 @@ class User:
         loss.backward()
         return X + epsilon * delta.grad.detach().sign()
     
+    # def pgd_l2(self, X, y, epsilon = 0.3, alpha = 0.01, num_iter = 40):
+    #     delta = torch.zeros_like(X, requires_grad=True)
+    #     for t in range(num_iter):
+    #         loss = self.loss(self.model(X + delta), y)
+    #         loss.backward()
+    #         delta.data += alpha*delta.grad.detach() / self.norms(delta.grad.detach())
+    #         delta.data = torch.min(torch.max(delta.detach(), -X), 1-X) #clip X+delta to [0,1]
+    #         delta.data *= epsilon / self.norms(delta.detach()).clamp(min=epsilon)
+    #         delta.grad.zero_()
+    #     return X + delta.detach()
     def pgd_l2(self, X, y, epsilon = 0.3, alpha = 0.01, num_iter = 40):
-        delta = torch.zeros_like(X, requires_grad=True)
+        delta = torch.zeros_like(X, requires_grad=True).to(self.device)
         for t in range(num_iter):
             loss = self.loss(self.model(X + delta), y)
             loss.backward()
-            delta.data += alpha*delta.grad.detach() / self.norms(delta.grad.detach())
+            delta.data += alpha*delta.grad.detach() / torch.norm(delta.grad.detach())
             delta.data = torch.min(torch.max(delta.detach(), -X), 1-X) #clip X+delta to [0,1]
-            delta.data *= epsilon / self.norms(delta.detach()).clamp(min=epsilon)
+            delta.data *= epsilon / torch.norm(delta.detach()).clamp(min=epsilon)
             delta.grad.zero_()
         return X + delta.detach()
-
+        
     def pgd_linf(self, X, y, epsilon = 0.3, alpha = 0.01, num_iter = 40):
         #epsilon = 8/255, alpha = 2/255 for cifar
         #epsilon = 0.3, 0.01 for MNIST, FE-MNIST
