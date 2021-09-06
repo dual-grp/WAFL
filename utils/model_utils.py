@@ -210,7 +210,7 @@ def read_cifa_data():
             # l = (2*user+j)%10
             l = (user + j) % 10
             num_samples = int(props[l, user//int(NUM_USERS/10), j])
-            numran1 = random.randint(300, 600)
+            numran1 = random.randint(100, 400)
             num_samples = (num_samples)  + numran1 #+ 200
             if(NUM_USERS <= 20): 
                 num_samples = num_samples * 2
@@ -233,6 +233,7 @@ def read_cifa_data():
         X[i][:], y[i][:] = zip(*combined)
 
         num_samples = len(X[i])
+        print(num_samples)
         train_len = int(0.75*num_samples)
         test_len = num_samples - train_len
 
