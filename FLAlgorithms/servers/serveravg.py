@@ -28,7 +28,7 @@ class FedAvg(Server):
         elif(dataset[0] == "Mnist"):
             self.adv_option = [0.3,0.01,40,10]
         elif(dataset[0] == "Emnist"):
-            self.adv_option = [0.3,0.01,20,5]
+            self.adv_option = [0.3,0.01,40,5]
         else:
             self.adv_option = [0,0,0,0]
             
@@ -63,7 +63,7 @@ class FedAvg(Server):
         for glob_iter in range(self.num_glob_iters):
             if(self.experiment):
                 self.experiment.set_epoch( glob_iter + 1)
-            print("-------------Round number: FedAvg",glob_iter, " -------------")
+            print("-------------Round number: FedAvg", glob_iter, " -------------")
 
             self.send_parameters()
 
