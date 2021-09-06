@@ -36,7 +36,8 @@ def get_model(args):
         
     elif(args.model == "cnn"):
         if(args.dataset == "Cifar10"):
-            model = CNNCifar().to(args.device)
+            #model = CNNCifar().to(args.device)
+            model = LeNet().to(args.device)
         if(args.dataset == "Emnist"):
             model = CNNEmnist().to(args.device)
             #model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', pretrained=True).to(args.device)
