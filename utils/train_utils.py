@@ -39,6 +39,8 @@ def get_model(args):
             #model = CNNCifar().to(args.device)
             model = LeNet().to(args.device)
         if(args.dataset == "Emnist"):
+            model = CNNEmnist(numlabels = 62).to(args.device)
+        if(args.dataset == "Mnist"):
             model = CNNEmnist().to(args.device)
             #model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', pretrained=True).to(args.device)
             #model.classifier[4] = torch.nn.Linear(4096,1024)

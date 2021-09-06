@@ -134,7 +134,7 @@ class CNNMnist(nn.Module):
         return F.log_softmax(x, dim=1)
 
 class CNNEmnist(nn.Module):
-    def __init__(self):
+    def __init__(self, numlabels= 10):
         super(CNNEmnist, self).__init__()
         self.conv1 = nn.Sequential(         
             nn.Conv2d(
@@ -154,7 +154,7 @@ class CNNEmnist(nn.Module):
             nn.MaxPool2d(2),                
         )
         # fully connected layer, output 10 classes
-        self.out = nn.Linear(32 * 7 * 7, 62)
+        self.out = nn.Linear(32 * 7 * 7, numlabels)
 
     def forward(self, x):
         x = self.conv1(x)
