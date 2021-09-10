@@ -15,7 +15,7 @@ from utils.options import args_parser
 # import comet_ml at the top of your file
 
 # Create an experiment with your api key:
-def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, K, times, commet, gpu):
+def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, K, alpha, times, commet, gpu):
     
     # Get device status: Check GPU or CPU
     device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
@@ -46,7 +46,7 @@ def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamm
         elif(algorithm == "FedRob"):
             if(commet):
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedRob(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, K, i)
+            server = FedRob(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, K, alpha, i)
 
         else:
             print("Algorithm is invalid")
@@ -112,6 +112,7 @@ if __name__ == "__main__":
         sub_user = args.subusers,
         numusers = args.numusers,
         K=args.K,
+        alpha = args.alpha,
         times = args.times,
         commet = args.commet,
         gpu=args.gpu

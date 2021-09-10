@@ -10,18 +10,18 @@ import copy
 # Implementation for FedAvg Server
 
 class FedRob(Server):
-    def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users, K, times):
+    def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users, K, alpha, times):
         super().__init__(experiment, device, dataset, algorithm, model[0], batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users, times)
 
         # Initialize adver options
         if(dataset[0] == "Cifar10"):
-            self.adv_option = [8/255,2/255,10,10]
+            self.adv_option = [8/255,2/255,10]
         elif(dataset[0] == "Mnist"):
-            self.adv_option = [0.3,0.01,40,10]
+            self.adv_option = [0.3,0.01,40]
         elif(dataset[0] == "Emnist"):
-            self.adv_option = [0.3,0.01,40,5]
+            self.adv_option = [0.3,0.01,40]
         else:
-            self.adv_option = [0,0,0,0]
+            self.adv_option = [0,0,0]
 
         #if(num_users == 1):
         #    i = 0
@@ -33,7 +33,7 @@ class FedRob(Server):
         #    self.total_train_samples += user.train_samples
         #    return
         self.target_domain = None
-        
+        self.alpha = alpha
         for i in range(num_users):
             train , test = dataset[2][i]
             user = UserRobF(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs, K)
@@ -70,7 +70,7 @@ class FedRob(Server):
             # Select subset of user for training
             self.selected_users = self.select_users(glob_iter, self.sub_users)
             for user in self.selected_users:
-                user.train(self.adv_option[-1])
+                user.train(self.alpha)
 
             self.aggregate_parameters(self.selected_users)
             
