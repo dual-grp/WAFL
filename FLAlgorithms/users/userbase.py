@@ -80,27 +80,29 @@ class User:
         self.model.eval()
         test_acc = 0
         loss = 0
-        for x, y in self.testloaderfull:
-            x, y = x.to(self.device), y.to(self.device)
-            #x , y = self.perturb(x, y)
-            output = self.model(x)
-            test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
-            loss += self.loss(output, y.long())
+        with torch.no_grad():
+            for x, y in self.testloaderfull:
+                x, y = x.to(self.device), y.to(self.device)
+                #x , y = self.perturb(x, y)
+                output = self.model(x)
+                test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
+                loss += self.loss(output, y.long())
         return test_acc, loss, y.shape[0]
 
     def test_robust(self, attack_mode = 'pgd', adv_option = [0,0,0]):
         self.model.eval()
         loss = 0
         test_acc = 0
-        for x, y in self.testloaderfull:
-            x, y = x.to(self.device), y.to(self.device)
-            if(attack_mode == 'pgd'):
-                x = self.pgd_linf(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1], num_iter = adv_option[2])
-            elif(attack_mode == 'fgsm'):
-                x = self.fgsm(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1])
-            output = self.model(x)
-            loss += self.loss(output, y.long())
-            test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
+        with torch.no_grad():
+            for x, y in self.testloaderfull:
+                x, y = x.to(self.device), y.to(self.device)
+                if(attack_mode == 'pgd'):
+                    x = self.pgd_linf(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1], num_iter = adv_option[2])
+                elif(attack_mode == 'fgsm'):
+                    x = self.fgsm(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1])
+                output = self.model(x)
+                loss += self.loss(output, y.long())
+                test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
         return test_acc,loss, y.shape[0]
     
     def test_domain(self):
@@ -117,13 +119,14 @@ class User:
         self.model.eval()
         train_acc = 0
         loss = 0
-        for x, y in self.trainloaderfull:
-            x, y = x.to(self.device), y.to(self.device)
-            output = self.model(x)
-            train_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
-            loss += self.loss(output, y.long())
-            #print(self.id + ", Train Accuracy:", train_acc)
-            #print(self.id + ", Train Loss:", loss)
+        with torch.no_grad():
+            for x, y in self.trainloaderfull:
+                x, y = x.to(self.device), y.to(self.device)
+                output = self.model(x)
+                train_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
+                loss += self.loss(output, y.long())
+                #print(self.id + ", Train Accuracy:", train_acc)
+                #print(self.id + ", Train Loss:", loss)
         return train_acc, loss , self.train_samples
      
     def get_next_train_batch(self):
