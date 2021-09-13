@@ -93,13 +93,13 @@ class User:
         self.model.eval()
         loss = 0
         test_acc = 0
-        with torch.no_grad():
-            for x, y in self.testloaderfull:
-                x, y = x.to(self.device), y.to(self.device)
-                if(attack_mode == 'pgd'):
-                    x = self.pgd_linf(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1], num_iter = adv_option[2])
-                elif(attack_mode == 'fgsm'):
-                    x = self.fgsm(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1])
+        for x, y in self.testloaderfull:
+            x, y = x.to(self.device), y.to(self.device)
+            if(attack_mode == 'pgd'):
+                x = self.pgd_linf(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1], num_iter = adv_option[2])
+            elif(attack_mode == 'fgsm'):
+                x = self.fgsm(X = x, y = y, epsilon = adv_option[0], alpha =adv_option[1])
+            with torch.no_grad():
                 output = self.model(x)
                 loss += self.loss(output, y.long())
                 test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()

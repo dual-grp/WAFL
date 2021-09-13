@@ -83,30 +83,30 @@ cnnode></pre>
 ## Cifar10
 <pre><code>
 
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0 --gamma 0.5 --num_global_iters 200 --local_epochs 5 --algorithm FedRob --subusers 0.5 --numusers 20 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0 --num_global_iters 200 --local_epochs 5 --algorithm FedAvg --subusers 0.5 --numusers 20 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0 --num_global_iters 200 --local_epochs 5 --algorithm FedPGD --subusers 0.5 --numusers 20 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0 --num_global_iters 200 --local_epochs 5 --algorithm FedFGSM --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0 --gamma 0.5 --num_global_iters 200 --local_epochs 2 --algorithm FedRob --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0 --num_global_iters 200 --local_epochs 2 --algorithm FedPGD --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0 --num_global_iters 200 --local_epochs 2 --algorithm FedFGSM --subusers 0.5 --numusers 20 --times 1
 
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.2 --gamma 0.5 --num_global_iters 200 --local_epochs 5 --algorithm FedRob --subusers 0.5 --numusers 20 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.2 --num_global_iters 200 --local_epochs 5 --algorithm FedAvg --subusers 0.5 --numusers 20 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.2 --num_global_iters 200 --local_epochs 5 --algorithm FedPGD --subusers 0.5 --numusers 20 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.2 --num_global_iters 200 --local_epochs 5 --algorithm FedFGSM --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.2 --gamma 0.5 --num_global_iters 200 --local_epochs 2 --algorithm FedRob --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.2 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.2 --num_global_iters 200 --local_epochs 2 --algorithm FedPGD --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.2 --num_global_iters 200 --local_epochs 2 --algorithm FedFGSM --subusers 0.5 --numusers 20 --times 1
 
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.4 --gamma 0.5 --num_global_iters 200 --local_epochs 5 --algorithm FedRob --subusers 0.5 --numusers 20 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.4 --num_global_iters 200 --local_epochs 5 --algorithm FedAvg --subusers 0.5 --numusers 20 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.4 --num_global_iters 200 --local_epochs 5 --algorithm FedPGD --subusers 0.5 --numusers 20 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.4 --num_global_iters 200 --local_epochs 5 --algorithm FedFGSM --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.4 --gamma 0.5 --num_global_iters 200 --local_epochs 2 --algorithm FedRob --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.4 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.4 --num_global_iters 200 --local_epochs 2 --algorithm FedPGD --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.4 --num_global_iters 200 --local_epochs 2 --algorithm FedFGSM --subusers 0.5 --numusers 20 --times 1
     
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.6 --gamma 0.5 --num_global_iters 200 --local_epochs 5 --algorithm FedRob --subusers 0.5 --numusers 200 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.6 --num_global_iters 200 --local_epochs 5 --algorithm FedAvg --subusers 0.5 --numusers 200 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.6 --num_global_iters 200 --local_epochs 5 --algorithm FedPGD --subusers 0.5 --numusers 200 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.6 --num_global_iters 200 --local_epochs 5 --algorithm FedFGSM --subusers 0.5 --numusers 200 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.6 --gamma 0.5 --num_global_iters 200 --local_epochs 2 --algorithm FedRob --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.6 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.6 --num_global_iters 200 --local_epochs 2 --algorithm FedPGD --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.6 --num_global_iters 200 --local_epochs 2 --algorithm FedFGSM --subusers 0.5 --numusers 20 --times 1
 
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.8 --gamma 0.5 --num_global_iters 200 --local_epochs 5 --algorithm FedRob --subusers 0.5 --numusers 200 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.2 --num_global_iters 200 --local_epochs 5 --algorithm FedAvg --subusers 0.5 --numusers 20 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.2 --num_global_iters 200 --local_epochs 5 --algorithm FedPGD --subusers 0.5 --numusers 20 --times 1
-    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.01 --robust 0.8 --num_global_iters 200 --local_epochs 5 --algorithm FedFGSM --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.8 --gamma 0.5 --num_global_iters 200 --local_epochs 2 --algorithm FedRob --subusers 0.5 --numusers 200 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.8 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.8 --num_global_iters 200 --local_epochs 2 --algorithm FedPGD --subusers 0.5 --numusers 20 --times 1
+    python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.8 --num_global_iters 200 --local_epochs 2 --algorithm FedFGSM --subusers 0.5 --numusers 20 --times 1
 cnnode></pre>
 
 
