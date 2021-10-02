@@ -18,6 +18,9 @@ def get_model(args):
             model = Mclr_Logistic().to(args.device)
         elif(args.dataset == "Mnist"):   
             model = Mclr_Logistic(784,62).to(args.device)
+        else:
+            # Domain Adaptation Convex Model (e.g., mm->mt)
+            model = LogisticModel().to(args.device)
         
     elif(args.model == "dnn"):
         if(args.dataset == "human_activity"):
@@ -45,6 +48,9 @@ def get_model(args):
             #model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', pretrained=True).to(args.device)
             #model.classifier[4] = torch.nn.Linear(4096,1024)
             #model.classifier[6] = torch.nn.Linear(1024,10)
+        else:
+            # Domain Adaptation Non-convex Model (e.g., mm->mt)
+            model = CNNDA().to(args.device)
     else:
         exit('Error: unrecognized model')
     return model,args.model

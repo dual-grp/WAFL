@@ -20,6 +20,7 @@ def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamm
     # Get device status: Check GPU or CPU
     device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
     args.device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
+
     domain_data = dataset[0], dataset[1], read_domain_data(dataset[0])
     
     for i in range(times):
@@ -61,16 +62,16 @@ if __name__ == "__main__":
     args = args_parser()
     print("=" * 80)
     print("Summary of training process:")
-    print("Algorithm: {}".format(args.algorithm))
-    print("Batch size: {}".format(args.batch_size))
-    print("Learning rate: {}".format(args.learning_rate))
-    print("Robust parameter {}".format(args.gamma))
+    print("Algorithm        : {}".format(args.algorithm))
+    print("Batch size       : {}".format(args.batch_size))
+    print("Learning rate    : {}".format(args.learning_rate))
+    print("Robust parameter : {}".format(args.gamma))
     print("Robust Option, fraction of attack clients: {}".format(args.robust))
-    print("Subset of users      : {}".format(args.subusers))
-    print("Number of global rounds       : {}".format(args.num_global_iters))
-    print("Number of local rounds       : {}".format(args.local_epochs))
-    print("Dataset       : {}".format(args.dataset))
-    print("Local Model       : {}".format(args.model))
+    print("Subset of users  : {}".format(args.subusers))
+    print("Number of global rounds  : {}".format(args.num_global_iters))
+    print("Number of local rounds   : {}".format(args.local_epochs))
+    print("Dataset          : {}".format(args.dataset))
+    print("Local Model      : {}".format(args.model))
     print("=" * 80)
 
     if(args.commet):

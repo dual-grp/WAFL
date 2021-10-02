@@ -5,13 +5,18 @@ import torch
 import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
+from torch.utils.data.dataset import Dataset
 from tqdm import trange
 import random
 from scipy.io import loadmat
 import sys
-import _pickle as pkl
+import pickle
 from sklearn.datasets import fetch_mldata
 from sklearn.model_selection import train_test_split
+
+## Ignore Warnings
+import warnings
+warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning) 
 
 IMAGE_SIZE = 28
 IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
@@ -52,7 +57,6 @@ def batch_data(data, batch_size):
         batched_y = data_y[i:i+batch_size]
         yield (batched_x, batched_y)
 
-
 def get_random_batch_sample(data_x, data_y, batch_size):
     num_parts = len(data_x)//batch_size + 1
     if(len(data_x) > batch_size):
@@ -64,7 +68,6 @@ def get_random_batch_sample(data_x, data_y, batch_size):
             return (data_x[sample_index: sample_index+batch_size], data_y[sample_index: sample_index+batch_size])
     else:
         return (data_x,data_y)
-
 
 def get_batch_sample(data, batch_size):
     data_x = data['x']
@@ -323,84 +326,6 @@ def read_user_data(index,data,dataset):
     train_data = [(x, y) for x, y in zip(X_train, y_train)]
     test_data = [(x, y) for x, y in zip(X_test, y_test)]
     return id, train_data, test_data
-
-def read_domain_data(dataset):
-    data_all = []
-    if(dataset == "fiveDigit"):
-        domain_all = ['mnist', 'mnistm', 'svhn', 'syn', 'usps']
-        for domain_name in domain_all:
-            data_all.append(dataset_read(domain_name))
-        return data_all
-
-    elif(dataset == "Office_Caltech10"):
-        domain_all = ['amazon', 'dslr', 'webcam', 'Caltech10']
-        for domain_name in domain_all:
-            data_all.append(dataset_read(domain_name))
-        return data_all
-
-    else:
-        if(dataset == "Cifar10"):
-            return read_cifa_data()
-
-        #if(dataset == "Mnist"):
-        #    clients, groups, train_data, test_data = read_mnist_data()
-        #    return clients, groups, train_data, test_data
-            
-        train_data_dir = os.path.join('data',dataset,'data', 'train')
-        test_data_dir = os.path.join('data',dataset,'data', 'test')
-        clients = []
-        groups = []
-        train_data = {}
-        test_data = {}
-
-        train_files = os.listdir(train_data_dir)
-        train_files = [f for f in train_files if f.endswith('.json')]
-        for f in train_files:
-            file_path = os.path.join(train_data_dir, f)
-            with open(file_path, 'r') as inf:
-                cdata = json.load(inf)
-            clients.extend(cdata['users'])
-            if 'hierarchies' in cdata:
-                groups.extend(cdata['hierarchies'])
-            train_data.update(cdata['user_data'])
-
-        test_files = os.listdir(test_data_dir)
-        test_files = [f for f in test_files if f.endswith('.json')]
-        for f in test_files:
-            file_path = os.path.join(test_data_dir, f)
-            with open(file_path, 'r') as inf:
-                cdata = json.load(inf)
-            test_data.update(cdata['user_data'])
-
-        clients = list(sorted(train_data.keys()))
-
-        for id in clients:
-            train_data_i = train_data[id]
-            test_data_i = test_data[id]
-            X_train, y_train, X_test, y_test = train_data_i['x'], train_data_i['y'], test_data_i['x'], test_data_i['y']
-            if(dataset == "Mnist" or dataset == "Emnist"):
-                X_train, y_train, X_test, y_test = train_data_i['x'], train_data_i['y'], test_data_i['x'], test_data_i['y']
-                X_train = torch.Tensor(X_train).view(-1, NUM_CHANNELS, IMAGE_SIZE, IMAGE_SIZE).type(torch.float32)
-                y_train = torch.Tensor(y_train).type(torch.int64)
-                X_test = torch.Tensor(X_test).view(-1, NUM_CHANNELS, IMAGE_SIZE, IMAGE_SIZE).type(torch.float32)
-                y_test = torch.Tensor(y_test).type(torch.int64)
-            elif(dataset == "Cifar10"):
-                X_train, y_train, X_test, y_test = train_data_i['x'], train_data_i['y'], test_data_i['x'], test_data_i['y']
-                X_train = torch.Tensor(X_train).view(-1, NUM_CHANNELS_CIFAR, IMAGE_SIZE_CIFAR, IMAGE_SIZE_CIFAR).type(torch.float32)
-                y_train = torch.Tensor(y_train).type(torch.int64)
-                X_test = torch.Tensor(X_test).view(-1, NUM_CHANNELS_CIFAR, IMAGE_SIZE_CIFAR, IMAGE_SIZE_CIFAR).type(torch.float32)
-                y_test = torch.Tensor(y_test).type(torch.int64)
-            else:
-                X_train = torch.Tensor(X_train).type(torch.float32)
-                y_train = torch.Tensor(y_train).type(torch.int64)
-                X_test = torch.Tensor(X_test).type(torch.float32)
-                y_test = torch.Tensor(y_test).type(torch.int64)
-            
-            train_data_res = [(x, y) for x, y in zip(X_train, y_train)]
-            test_data_res = [(x, y) for x, y in zip(X_test, y_test)]
-            data_all.append([train_data_res,test_data_res])
-        return data_all
-        
 
 base_dir = './data'
 
@@ -685,3 +610,353 @@ def dense_to_one_hot(labels_dense):
         else:
             labels_one_hot[i] = t
     return labels_one_hot
+
+#########################################
+####### Domain Adaptation Utils #########
+#########################################
+
+### Base Folder
+DATA_FOLDER = './data/fiveDigit/original_data'
+BASE_FOLDER = './data/fiveDigit'
+
+### Data Statistics
+def print_image_data_stats(data_train, labels_train, data_test, labels_test):
+    print("\nData: ")
+    print(" -- Train Set: ({},{}), Range: [{:.3f}, {:.3f}], Labels: {},..,{}".format(
+        data_train.shape, labels_train.shape, np.min(data_train), np.max(data_train),
+        np.min(labels_train), np.max(labels_train)))
+    print(" -- Test Set: ({},{}), Range: [{:.3f}, {:.3f}], Labels: {},..,{}".format(
+        data_test.shape, labels_test.shape, np.min(data_train), np.max(data_train),
+        np.min(labels_test), np.max(labels_test)))
+  
+def get_target_mnist_pkl(num_train, num_test):
+
+    print("-- loading full mnist data")
+
+    with open(DATA_FOLDER + "/mnist.pkl", "br") as fh:
+      data = pickle.load(fh)
+
+    train_imgs = data[0]
+    test_imgs = data[1]
+    train_labels = data[2]
+    test_labels = data[3]
+
+    mnist_train = [x.reshape(28,28,1).astype(np.float32) for x in train_imgs]
+    mnist_data_train = np.concatenate([mnist_train, mnist_train, mnist_train], 3)
+    mnist_data_train = mnist_data_train.transpose(0, 3, 1, 2)
+    mnist_train_labels = train_labels.T[0].astype(int)
+    #mnistm_train = [(x, y) for x, y in zip(train_data_2, train_labels.T[0])]
+
+    mnist_test = [x.reshape(28,28,1).astype(np.float32) for x in test_imgs]
+    mnist_data_test = np.concatenate([mnist_test, mnist_test, mnist_test], 3)
+    mnist_data_test = mnist_data_test.transpose(0, 3, 1, 2)
+    mnist_test_labels = test_labels.T[0].astype(int)
+
+
+    if (num_train != 0 and num_test != 0):
+      mnist_data_train = mnist_data_train[:num_train]
+      mnist_train_labels = mnist_train_labels[:num_train]
+
+      mnist_data_test = mnist_data_test[:num_test]
+      mnist_test_labels = mnist_test_labels[:num_test]
+
+    #mnistm_test = [(x, y) for x, y in zip(test_data_2, test_labels.T[0])]
+    print_image_data_stats(mnist_data_train, mnist_train_labels, mnist_data_test, mnist_test_labels)
+
+
+    train_data = [(x, y) for x, y in zip(mnist_data_train, mnist_train_labels)]
+    test_data = [(x, y) for x, y in zip(mnist_data_test, mnist_test_labels)] 
+
+    return train_data, test_data
+
+def get_target_mnistm_full(num_train, num_test):
+    print("-- loading mnist-m data")
+
+    mnistm_train = loadmat(DATA_FOLDER + '/mnistm_train.mat')
+    mnistm_test = loadmat(DATA_FOLDER + '/mnistm_test.mat')
+
+    mnistm_train_data = mnistm_train['train_data']
+    mnistm_test_data = mnistm_test['test_data']
+
+    mnistm_train_data = mnistm_train_data.transpose(0, 3, 1, 2).astype(np.float32)
+    mnistm_test_data = mnistm_test_data.transpose(0, 3, 1, 2).astype(np.float32)
+
+    # get labels
+    mnistm_labels_train = mnistm_train['train_label']
+    mnistm_labels_test = mnistm_test['test_label']
+
+    # random sample 25000 from train dataset and random sample 9000 from test dataset
+    inds = np.random.permutation(mnistm_train_data.shape[0])
+
+    train_label = mnistm_labels_train.reshape(1,-1)[0]
+
+    mnistm_train_data = mnistm_train_data[inds]
+    train_label = train_label[inds]
+
+    test_label = mnistm_labels_test.reshape(1,-1)[0]
+    '''
+    print('mnist_m train X shape->',  mnistm_train_data.shape)
+    print('mnist_m train y shape->',  train_label.shape)
+    print('mnist_m test X shape->',  mnistm_test_data.shape)
+    print('mnist_m test y shape->', test_label.shape)
+    '''
+
+    if (num_train != 0 and num_test != 0):
+      mnistm_train_data = mnistm_train_data[:num_train]
+      train_label = train_label[:num_train]
+
+      mnistm_test_data = mnistm_test_data[:num_test]
+      test_label = test_label[:num_test]
+
+    print_image_data_stats(mnistm_train_data, train_label, mnistm_test_data, test_label)
+
+    train_data = [(x, y) for x, y in zip(mnistm_train_data, train_label)]
+    test_data = [(x, y) for x, y in zip(mnistm_test_data, test_label)]
+
+    return train_data, test_data
+
+def get_target_usps():
+    print("-- loading usps data")
+    
+    dataset  = loadmat(DATA_FOLDER + '/usps_28x28.mat')
+    data_set = dataset['dataset']
+    img_train = data_set[0][0]
+    label_train = data_set[0][1]
+    img_test = data_set[1][0]
+    label_test = data_set[1][1]
+    inds = np.random.permutation(img_train.shape[0])
+    img_train = img_train[inds]
+    label_train = label_train[inds]
+
+    frac = 0.99/255
+    img_train *= 255
+    img_train = img_train * frac + 0.01
+
+    img_test *= 255
+    img_test = img_test * frac + 0.01
+
+    label_train = label_train.reshape(-1)
+    label_test = label_test.reshape(-1)
+
+    img_train = np.concatenate([ img_train, img_train, img_train], 1)
+    img_test = np.concatenate([img_test, img_test,img_test],1)
+    '''
+    print('usps train X shape->',  img_train.shape)
+    print('usps train y shape->',  label_train.shape)
+    print('usps test X shape->',  img_test.shape)
+    print('usps test y shape->', label_test.shape)
+    '''
+
+    print_image_data_stats(img_train, label_train, img_test, label_test)
+
+    train_data = [(x, y) for x, y in zip(img_train, label_train)]
+    test_data = [(x, y) for x, y in zip(img_test, label_test)]
+    return train_data, test_data
+
+def read_domain_data(dataset):
+    '''
+    Read Domain Datasets for running experiments
+    '''
+
+    print("- dataset to read :", dataset)
+
+    data_all = []
+
+    if(dataset == "mnist2mnistm"):
+
+        # mnist_train, mnist_test = get_data_loaders(dataset="mnist", classes_pc = classes_pc, nclients= nclients-1, batch_size=32, verbose=True)        
+        mnist_data = loadmat(BASE_FOLDER + "/niid_mnist.mat")
+        mnist_train = mnist_data["train_data"]
+        mnist_test = mnist_data["test_data"]
+        mnistm_train, mnistm_test = get_target_mnistm_full(0,0)       
+ 
+        clients = len(mnist_train)
+
+        for i in range(clients):
+            client_train = [(x, y) for x, y in zip(mnist_train[i][0], mnist_train[i][1][0])] 
+            client_test = [(x, y) for x, y in zip(mnist_test[i][0], mnist_test[i][1][0])] 
+            data_all.append([client_train, client_test])
+        
+        data_all.append([mnistm_train, mnistm_test])
+
+        return data_all
+
+    elif(dataset == "mnist2usps"):
+
+        # mnist_train, mnist_test = get_data_loaders(dataset="mnist", classes_pc = classes_pc, nclients= nclients-1, batch_size=32, verbose=True)
+        mnist_data = loadmat(BASE_FOLDER + "/niid_mnist.mat")
+        mnist_train = mnist_data["train_data"]
+        mnist_test = mnist_data["test_data"]
+
+        usps_train, usps_test = get_target_usps()
+
+        clients = len(mnist_train)
+
+        for i in range(clients):
+            client_train = [(x, y) for x, y in zip(mnist_train[i][0], mnist_train[i][1][0])] 
+            client_test = [(x, y) for x, y in zip(mnist_test[i][0], mnist_test[i][1][0])] 
+            data_all.append([client_train, client_test])
+        
+        data_all.append([usps_train, usps_test])
+
+        return data_all
+
+    elif(dataset == "mnistm2usps"):
+
+        # mnistm_train, mnistm_test = get_data_loaders(dataset="mnistm", classes_pc = classes_pc, nclients= nclients-1, batch_size=32, verbose=True)
+        mnistm_data = loadmat(BASE_FOLDER + "/niid_mnistm.mat")
+        mnistm_train = mnistm_data["train_data"]
+        mnistm_test = mnistm_data["test_data"]
+
+        usps_train, usps_test = get_target_usps()
+
+        clients = len(mnistm_train)
+
+        for i in range(clients):
+            client_train = [(x, y) for x, y in zip(mnistm_train[i][0], mnistm_train[i][1][0])] 
+            client_test = [(x, y) for x, y in zip(mnistm_test[i][0], mnistm_test[i][1][0])] 
+            data_all.append([client_train, client_test])
+        
+        data_all.append([usps_train, usps_test])
+
+        return data_all
+
+    elif(dataset == "mnistm2mnist"):
+ 
+        # mnistm_train, mnistm_test = get_data_loaders(dataset="mnistm", classes_pc = classes_pc, nclients= nclients-1, batch_size=32, verbose=True)
+        mnistm_data = loadmat(BASE_FOLDER + "/niid_mnistm.mat")
+        mnistm_train = mnistm_data["train_data"]
+        mnistm_test = mnistm_data["test_data"]
+
+        mnist_train, mnist_test = get_target_mnist_pkl(0,0)
+
+        print(mnistm_train[0][1].shape)
+        clients = len(mnistm_train)
+
+        for i in range(clients):
+            client_train = [(x, y) for x, y in zip(mnistm_train[i][0], mnistm_train[i][1][0])] 
+            client_test = [(x, y) for x, y in zip(mnistm_test[i][0], mnistm_test[i][1][0])] 
+            data_all.append([client_train, client_test])
+        
+        data_all.append([mnist_train, mnist_test])
+
+        return data_all
+
+    elif(dataset == "usps2mnist"):
+       
+        # usps_train, usps_test = get_data_loaders(dataset="usps", classes_pc = classes_pc, nclients= nclients-1, batch_size=32, verbose=True)
+        
+        usps_data = loadmat(BASE_FOLDER + "/niid_usps.mat")
+        usps_train = usps_data["train_data"]
+        usps_test = usps_data["test_data"]
+
+        mnist_train, mnist_test = get_target_mnist_pkl(0,0)
+
+        clients = len(usps_train)
+
+        for i in range(clients):
+            client_train = [(x, y) for x, y in zip(usps_train[i][0], usps_train[i][1][0])] 
+            client_test = [(x, y) for x, y in zip(usps_test[i][0], usps_test[i][1][0])] 
+            data_all.append([client_train, client_test])
+        
+        data_all.append([mnist_train, mnist_test])
+
+        return data_all
+
+    elif (dataset == "usps2mnistm"):
+
+        # usps_train, usps_test = get_data_loaders(dataset="usps", classes_pc = classes_pc, nclients= nclients-1, batch_size=32, verbose=True)
+        usps_data = loadmat(BASE_FOLDER + "/niid_usps.mat")
+        usps_train = usps_data["train_data"]
+        usps_test = usps_data["test_data"]
+
+        mnistm_train, mnistm_test = get_target_mnistm_full(0,0)
+
+        clients = len(usps_train)
+
+        for i in range(clients):
+            client_train = [(x, y) for x, y in zip(usps_train[i][0], usps_train[i][1][0])] 
+            client_test = [(x, y) for x, y in zip(usps_test[i][0], usps_test[i][1][0])] 
+            data_all.append([client_train, client_test])
+        
+        data_all.append([mnistm_train, mnistm_test])
+
+        return data_all
+    
+    #########################
+    ##### Original Code #####
+    #########################
+    elif(dataset == "fiveDigit"):
+        domain_all = ['mnist', 'mnistm', 'svhn', 'syn', 'usps']
+        for domain_name in domain_all:
+            data_all.append(dataset_read(domain_name))
+        return data_all
+
+    elif(dataset == "Office_Caltech10"):
+        domain_all = ['amazon', 'dslr', 'webcam', 'Caltech10']
+        for domain_name in domain_all:
+            data_all.append(dataset_read(domain_name))
+        return data_all
+
+    else:
+        if(dataset == "Cifar10"):
+            return read_cifa_data()
+
+        #if(dataset == "Mnist"):
+        #    clients, groups, train_data, test_data = read_mnist_data()
+        #    return clients, groups, train_data, test_data
+            
+        train_data_dir = os.path.join('data',dataset,'data', 'train')
+        test_data_dir = os.path.join('data',dataset,'data', 'test')
+        clients = []
+        groups = []
+        train_data = {}
+        test_data = {}
+
+        train_files = os.listdir(train_data_dir)
+        train_files = [f for f in train_files if f.endswith('.json')]
+        for f in train_files:
+            file_path = os.path.join(train_data_dir, f)
+            with open(file_path, 'r') as inf:
+                cdata = json.load(inf)
+            clients.extend(cdata['users'])
+            if 'hierarchies' in cdata:
+                groups.extend(cdata['hierarchies'])
+            train_data.update(cdata['user_data'])
+
+        test_files = os.listdir(test_data_dir)
+        test_files = [f for f in test_files if f.endswith('.json')]
+        for f in test_files:
+            file_path = os.path.join(test_data_dir, f)
+            with open(file_path, 'r') as inf:
+                cdata = json.load(inf)
+            test_data.update(cdata['user_data'])
+
+        clients = list(sorted(train_data.keys()))
+
+        for id in clients:
+            train_data_i = train_data[id]
+            test_data_i = test_data[id]
+            X_train, y_train, X_test, y_test = train_data_i['x'], train_data_i['y'], test_data_i['x'], test_data_i['y']
+            if(dataset == "Mnist" or dataset == "Emnist"):
+                X_train, y_train, X_test, y_test = train_data_i['x'], train_data_i['y'], test_data_i['x'], test_data_i['y']
+                X_train = torch.Tensor(X_train).view(-1, NUM_CHANNELS, IMAGE_SIZE, IMAGE_SIZE).type(torch.float32)
+                y_train = torch.Tensor(y_train).type(torch.int64)
+                X_test = torch.Tensor(X_test).view(-1, NUM_CHANNELS, IMAGE_SIZE, IMAGE_SIZE).type(torch.float32)
+                y_test = torch.Tensor(y_test).type(torch.int64)
+            elif(dataset == "Cifar10"):
+                X_train, y_train, X_test, y_test = train_data_i['x'], train_data_i['y'], test_data_i['x'], test_data_i['y']
+                X_train = torch.Tensor(X_train).view(-1, NUM_CHANNELS_CIFAR, IMAGE_SIZE_CIFAR, IMAGE_SIZE_CIFAR).type(torch.float32)
+                y_train = torch.Tensor(y_train).type(torch.int64)
+                X_test = torch.Tensor(X_test).view(-1, NUM_CHANNELS_CIFAR, IMAGE_SIZE_CIFAR, IMAGE_SIZE_CIFAR).type(torch.float32)
+                y_test = torch.Tensor(y_test).type(torch.int64)
+            else:
+                X_train = torch.Tensor(X_train).type(torch.float32)
+                y_train = torch.Tensor(y_train).type(torch.int64)
+                X_test = torch.Tensor(X_test).type(torch.float32)
+                y_test = torch.Tensor(y_test).type(torch.int64)
+            
+            train_data_res = [(x, y) for x, y in zip(X_train, y_train)]
+            test_data_res = [(x, y) for x, y in zip(X_test, y_test)]
+            data_all.append([train_data_res,test_data_res])
+        return data_all
