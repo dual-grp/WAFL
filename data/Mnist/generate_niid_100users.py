@@ -9,7 +9,7 @@ import os
 random.seed(1)
 np.random.seed(1)
 NUM_USERS = 100  
-NUM_LABELS = 3
+NUM_LABELS = 2
 # Setup directory for train/test data
 train_path = './data/train/mnist_train.json'
 test_path = './data/test/mnist_test.json'
@@ -38,7 +38,7 @@ X = [[] for _ in range(NUM_USERS)]
 y = [[] for _ in range(NUM_USERS)]
 idx = np.zeros(10, dtype=np.int64)
 for user in range(NUM_USERS):
-    for j in range(NUM_LABELS):  # 3 labels for each users
+    for j in range(NUM_LABELS + 1):  # 3 labels for each users
         #l = (2*user+j)%10
         l = (user + j) % 10
         print("L:", l)
@@ -51,7 +51,7 @@ print("IDX1:", idx)  # counting samples for each labels
 # Assign remaining sample by power law
 user = 0
 props = np.random.lognormal(
-    0, 2., (10, NUM_USERS, NUM_LABELS))  # last 5 is 5 labels
+    0, 2., (10, NUM_USERS, NUM_LABELS + 1 ))  # last 5 is 5 labels
 props = np.array([[[len(v)-NUM_USERS]] for v in mnist_data]) * \
     props/np.sum(props, (1, 2), keepdims=True)
 # print("here:",props/np.sum(props,(1,2), keepdims=True))
@@ -60,7 +60,7 @@ props = np.array([[[len(v)-NUM_USERS]] for v in mnist_data]) * \
 #idx = 1000*np.ones(10, dtype=np.int64)
 # print("here2:",props)
 for user in trange(NUM_USERS):
-    for j in range(NUM_LABELS):  # 4 labels for each users
+    for j in range(NUM_LABELS + 1):  #3 labels for each users
         # l = (2*user+j)%10
         l = (user + j) % 10
         num_samples = int(props[l, user//int(NUM_USERS/10), j])

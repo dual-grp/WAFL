@@ -153,7 +153,7 @@ def read_cifa_data():
     random.seed(1)
     np.random.seed(1)
     NUM_USERS = 20 # should be muitiple of 10
-    NUM_LABELS = 4
+    NUM_LABELS = 3
     # Setup directory for train/test data
     train_path = './data/train/cifa_train_100.json'
     test_path = './data/test/cifa_test_100.json'
@@ -181,15 +181,14 @@ def read_cifa_data():
 
 
     print("\nNumb samples of each label:\n", [len(v) for v in cifa_data])
-    users_lables = []
-
+    
     ###### CREATE USER DATA SPLIT #######
     # Assign 100 samples to each user
     X = [[] for _ in range(NUM_USERS)]
     y = [[] for _ in range(NUM_USERS)]
     idx = np.zeros(10, dtype=np.int64)
     for user in range(NUM_USERS):
-        for j in range(NUM_LABELS):  # 3 labels for each users
+        for j in range(NUM_LABELS + 1):
             #l = (2*user+j)%10
             l = (user + j) % 10
             print("L:", l)
@@ -200,17 +199,11 @@ def read_cifa_data():
     # Assign remaining sample by power law
     user = 0
     props = np.random.lognormal(
-        0, 2., (10, NUM_USERS, NUM_LABELS + 1))  # last 5 is 5 labels
+        0, 2., (10, NUM_USERS, 5))  # last 5 is 5 labels
     props = np.array([[[len(v)-NUM_USERS]] for v in cifa_data]) * \
         props/np.sum(props, (1, 2), keepdims=True)
-    # print("here:",props/np.sum(props,(1,2), keepdims=True))
-    #props = np.array([[[len(v)-100]] for v in mnist_data]) * \
-    #    props/np.sum(props, (1, 2), keepdims=True)
-    #idx = 1000*np.ones(10, dtype=np.int64)
-    # print("here2:",props)
     for user in trange(NUM_USERS):
-        for j in range(NUM_LABELS + 1):  # 4 labels for each users
-            # l = (2*user+j)%10
+        for j in range(5):
             l = (user + j) % 10
             num_samples = int(props[l, user//int(NUM_USERS/10), j])
             numran1 = random.randint(100, 200)
