@@ -3,7 +3,7 @@ from comet_ml import Experiment
 from FLAlgorithms.servers.serveravg import FedAvg
 from FLAlgorithms.servers.serverPGD import FedPGD
 from FLAlgorithms.servers.serverFGSM import FedFGSM
-from FLAlgorithms.servers.serverrobF import FedRob
+from FLAlgorithms.servers.serverWAFL import WAFL
 from utils.model_utils import read_domain_data
 from FLAlgorithms.trainmodel.models import *
 from utils.plot_utils import *
@@ -44,10 +44,10 @@ def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamm
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
             server = FedFGSM(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, K, i)
 
-        elif(algorithm == "FedRob"):
+        elif(algorithm == "WAFL"):
             if(commet):
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
-            server = FedRob(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, K, alpha, i)
+            server = WAFL(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, K, alpha, i)
 
         else:
             print("Algorithm is invalid")

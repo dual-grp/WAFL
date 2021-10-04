@@ -1,9 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import os
-import json
-from torch.utils.data import DataLoader
 from FLAlgorithms.users.userbase import User
 import numpy as np
 # Implementation for FedAvg clients
@@ -14,7 +11,6 @@ class UserAVG(User):
 
         self.loss = nn.CrossEntropyLoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        #self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
     def train(self, epochs):
         LOSS = 0

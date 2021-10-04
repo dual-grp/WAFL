@@ -1,15 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import os
-import json
-from torch.utils.data import DataLoader
 from FLAlgorithms.users.userbase import User
-import numpy as np
-import copy
-# Implementation for FedAvg clients
 
-class UserRobF(User):
+class UserWAFL(User):
     def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, robust, gamma, local_epochs, K):
         super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, robust, gamma, local_epochs)
 

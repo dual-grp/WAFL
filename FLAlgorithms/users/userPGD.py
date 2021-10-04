@@ -1,12 +1,6 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import os
-import json
-from torch.utils.data import DataLoader
 from FLAlgorithms.users.userbase import User
-import numpy as np
-# Implementation for FedAvg clients
 
 class UserPGD(User):
     def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, robust, gamma, local_epochs, K):
