@@ -1,5 +1,5 @@
-# WASSERSTEIN DISTRIBUTIONALLY ROBUST OPTIMIZATION FOR FEDERATED LEARNING
-This repository implements all experiments in the paper the *WASSERSTEIN DISTRIBUTIONALLY ROBUST OPTIMIZATION FOR FEDERATED LEARNING*.
+# ON THE GENERALIZATION OF WASSERSTEIN ROBUST FEDERATED LEARNING
+This repository implements all experiments in the paper the *ON THE GENERALIZATION OF WASSERSTEIN ROBUST FEDERATED LEARNING*.
   
 Authors: 
 
@@ -19,9 +19,7 @@ Download Link:
 All dataset after downloading must be stored at folder \data
 
 
-# Training Adversarial
-    - For Mnist dataset: Before running experiment, need to run generate_niid_100users.py to generate MNIST dataset
-
+# Adversarial Training 
 <pre><code>
     python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0 --gamma 0.05 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 100 --times 1
     python3 main.py --dataset Mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust 0 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.1 --numusers 100 --times 1
@@ -51,7 +49,6 @@ All dataset after downloading must be stored at folder \data
 
 ## Cifar10
 <pre><code>
-
     python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0 --gamma 0.5 --alpha 1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.5 --numusers 20 --times 1
     python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.5 --numusers 20 --times 1
     python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0 --num_global_iters 200 --local_epochs 2 --algorithm FedPGD --subusers 0.5 --numusers 20 --times 1
@@ -77,7 +74,6 @@ All dataset after downloading must be stored at folder \data
     python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.8 --num_global_iters 200 --local_epochs 2 --algorithm FedPGD --subusers 0.5 --numusers 20 --times 1
     python3 main.py --dataset Cifar10 --model cnn --batch_size 64 --learning_rate 0.05 --robust 0.8 --num_global_iters 200 --local_epochs 2 --algorithm FedFGSM --subusers 0.5 --numusers 20 --times 1
 cnnode></pre>
-
 
 Evaluate different value of parameter gamma on MNIST
 <pre><code>
@@ -118,7 +114,6 @@ Before running Domain Adadaption experiments, we need to generate source clients
 
 ### Experiments
 #### MNISTM to MNIST
-
 <pre><code>
     python3 main.py --dataset mnistm2mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust -1 --gamma 0.1 --num_global_iters 10 --local_epochs 2 --algorithm FedAvg --subusers 0.1 --numusers 101 --times 1
     python3 main.py --dataset mnistm2mnist --model mclr --batch_size 64 --learning_rate 0.001 --robust -1 --gamma 0.1 --num_global_iters 10 --local_epochs 2 --algorithm FedPGD --subusers 0.1 --numusers 101 --times 1
@@ -127,7 +122,6 @@ Before running Domain Adadaption experiments, we need to generate source clients
 </code></pre>
 
 #### MNISTM to USPS
-
 <pre><code>
     python3 main.py --dataset mnistm2usps --model mclr --batch_size 64 --learning_rate 0.001 --robust -1 --gamma 0.1 --num_global_iters 10 --local_epochs 2 --algorithm FedAvg --subusers 0.1 --numusers 101 --times 1
     python3 main.py --dataset mnistm2usps --model mclr --batch_size 64 --learning_rate 0.001 --robust -1 --gamma 0.1 --num_global_iters 10 --local_epochs 2 --algorithm FedPGD --subusers 0.1 --numusers 101 --times 1
@@ -136,7 +130,6 @@ Before running Domain Adadaption experiments, we need to generate source clients
 </code></pre>
 
 #### MNIST to MNISTM
-
 <pre><code>
     python3 main.py --dataset mnist2mnistm --model mclr --batch_size 64 --learning_rate 0.001 --robust -1 --gamma 0.1 --num_global_iters 10 --local_epochs 2 --algorithm FedAvg --subusers 0.1 --numusers 101 --times 1
     python3 main.py --dataset mnist2mnistm --model mclr --batch_size 64 --learning_rate 0.001 --robust -1 --gamma 0.1 --num_global_iters 10 --local_epochs 2 --algorithm FedPGD --subusers 0.1 --numusers 101 --times 1
@@ -145,7 +138,6 @@ Before running Domain Adadaption experiments, we need to generate source clients
 </code></pre>
 
 #### MNIST to USPS
-
 <pre><code>
     python3 main.py --dataset mnist2usps --model mclr --batch_size 64 --learning_rate 0.001 --robust -1 --gamma 0.1 --num_global_iters 10 --local_epochs 2 --algorithm FedAvg --subusers 0.1 --numusers 101 --times 1
     python3 main.py --dataset mnist2usps --model mclr --batch_size 64 --learning_rate 0.001 --robust -1 --gamma 0.1 --num_global_iters 10 --local_epochs 2 --algorithm FedPGD --subusers 0.1 --numusers 101 --times 1
