@@ -131,9 +131,9 @@ Evaluate different value of parameter gamma on MNIST
 
 ## Domain Adaptation
 
-### Generate source domains data
-
-    usage: data/fiveDigit/generate_niid_DAUsers.py [-h] [--dataset {mnist,mnistm,usps}]
+### Generate source clients' domains data
+Before running Domain Adadaption experiments, we need to generate source clients' data by using *data/fiveDigit/generate_niid_DAUsers.py*
+    usage: python generate_niid_DAUsers.py [-h] [--dataset {mnist,mnistm,usps}]
                                     [--numuser NUMUSER] [--label LABEL]
                                     [--batch_size BATCH_SIZE] [--verbose VERBOSE]
 
