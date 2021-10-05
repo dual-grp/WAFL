@@ -1,4 +1,4 @@
-Files need in *original_data* folder:
+Please download and store all below datasets in *data/fiveDigit/original_data* folder:
 
 mnist_data.pkl
 
