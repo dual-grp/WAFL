@@ -16,7 +16,7 @@ Authors:
 
 Download Link: https://drive.google.com/file/d/14YcDLqSYn6FbLMpZqilM5VLNnX06U2Dx/view?usp=sharing
 
-All dataset after downloading must be stored at folder \data
+All dataset after downloading must be stored at folder ./data
 
 
 # Adversarial Training 
