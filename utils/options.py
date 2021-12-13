@@ -16,7 +16,7 @@ def args_parser():
     parser.add_argument("--num_global_iters", type=int, default=200)
     parser.add_argument("--local_epochs", type=int, default=2)
     parser.add_argument("--subusers", type=float, default=0.1, help="partition of users")
-    parser.add_argument("--algorithm", type=str, default="WAFL",choices=["WAFL","FedAvg","FedFGSM", "FedPGD"]) 
+    parser.add_argument("--algorithm", type=str, default="WAFL",choices=["WAFL","FedAvg","FedFGSM", "FedPGD", "FedAFL"]) 
     parser.add_argument("--numusers", type=int, default=100, help="Total users, MNIST:100, Cifar:20, EMNIST:200")
     parser.add_argument("--K", type=int, default=10, help="Computation steps to solve inner problem")
     parser.add_argument("--alpha", type=float, default=1, help="learning rate to solve inner max problem of WAFL")
