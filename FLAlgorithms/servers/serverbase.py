@@ -17,6 +17,7 @@ class Server:
         self.learning_rate = learning_rate
         self.total_train_samples = 0
         self.model = copy.deepcopy(model)
+        self.resulting_model = copy.deepcopy(model) # Add final model
         self.users = []
         self.selected_users = []
         self.num_users = num_users
@@ -86,7 +87,37 @@ class Server:
             total_train += user.train_samples
         for user in users:
             self.add_parameters(user, user.train_samples / total_train)
-    
+
+    def AFL_aggregate_parameters(self, users, lambdas):
+        # print("AFL aggregate parameters from Tung Anh!!!")
+        assert (users is not None and len(users) > 0)
+        for param in self.model.parameters():
+            param.data = torch.zeros_like(param.data)
+        total_train = 0
+
+        for user in users:
+            total_train += user.train_samples
+        #if(self.num_users = self.to)
+
+        total_weight = 0 
+        for lambda_ in lambdas:
+            total_weight += lambda_ # Sumation over all lambda values
+        print(f"total_weight: {total_weight}")
+        for user, lambda_ in zip(users, lambdas):
+            print(f"lambdas_ratio: {round(lambda_ * 1.0 / total_weight, 3)} | data ratio: {round(user.train_samples / total_train, 3)}")
+            self.add_parameters(user, lambda_ * 1.0 / total_weight)
+
+    def AFL_aggregate_grads(self, users, lambdas):
+        assert (self.users is not None and len(self.users) > 0)
+        for param in self.model.parameters():
+            param.grad = torch.zeros_like(param.data)
+
+        total_weight = 0 
+        for lambda_ in lambdas:
+            total_weight += lambda_ # Sumation over all lambda values
+        for user, lambda_ in zip(users, lambdas):
+            self.add_grad(user, lambda_ * 1.0 / total_weight) # Add grads based on lambda values
+
     def save_model(self):
         model_path = os.path.join("models", self.dataset[0])
         if not os.path.exists(model_path):
