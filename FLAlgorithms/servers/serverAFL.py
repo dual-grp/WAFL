@@ -137,10 +137,10 @@ class FedAFL(Server):
                     self.lambdas[idx] += self.learning_rate_lambda * losses[idx]
                 # Project lambdas
                 # print(f"lambdas before projection: {self.lambdas}")
-                print(f"Type of lamdas before project: {type(self.lambdas)} -- len: {len(self.lambdas)}")
+                # print(f"Type of lamdas before project: {type(self.lambdas)} -- len: {len(self.lambdas)}")
                 self.lambdas = self.project(self.lambdas)
                 # print(f"lambdas after projection: {self.lambdas}")
-                print(f"Type of lamdas after project: {type(self.lambdas)} -- len: {len(self.lambdas)}")
+                # print(f"Type of lamdas after project: {type(self.lambdas)} -- len: {len(self.lambdas)}")
                 # Avoid probability 0
                 self.lambdas = np.asarray(self.lambdas)
                 lambdas_zeros = self.lambdas <= 1e-3
