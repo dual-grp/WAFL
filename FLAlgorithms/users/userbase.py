@@ -15,6 +15,7 @@ class User:
         # from fedprox
         self.device = device
         self.model = copy.deepcopy(model)
+        self.user_sample_model = copy.deepcopy(model)
         self.id = id  # integer
         self.train_samples = len(train_data)
         self.test_samples = len(test_data)
@@ -54,7 +55,7 @@ class User:
         for param in self.model.parameters():
             param.detach()
         return self.model.parameters()
-    
+
     def clone_model_paramenter(self, param, clone_param):
         for param, clone_param in zip(param, clone_param):
             clone_param.data = param.data.clone()

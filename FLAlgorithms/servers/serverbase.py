@@ -18,6 +18,7 @@ class Server:
         self.total_train_samples = 0
         self.model = copy.deepcopy(model)
         self.resulting_model = copy.deepcopy(model) # Add final model
+        self.sample_model = copy.deepcopy(model) # Add sample model for DRFA - W_t'
         self.users = []
         self.selected_users = []
         self.num_users = num_users
