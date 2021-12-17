@@ -169,6 +169,9 @@ class FedAFL(Server):
                 print(server_param.data)
         self.send_parameters()
         self.evaluate()
+        if(self.robust > 0):
+            self.adv_users = self.select_users(glob_iter, self.robust)
+            self.evaluate_robust('pgd', self.adv_option)
         
         self.save_results()
         self.save_model()

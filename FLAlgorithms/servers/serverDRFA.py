@@ -85,12 +85,22 @@ class FedDRFA(Server):
         for param in self.model.parameters():
             param.data = torch.zeros_like(param.data)
         total_users = 0
-        #if(self.num_users = self.to)
         for user in users:
             total_users += 1
         print(total_users)
         for user in users:
             self.add_parameters(user, 1.0 / total_users)
+
+    def DRFA_aggregate_parameters_with_lambdas(self, users, lambdas):
+        assert (users is not None and len(users) > 0)
+        for param in self.model.parameters():
+            param.data = torch.zeros_like(param.data)
+        total_train = 0
+
+        print(f"lambdas: {lambdas}")
+
+        for user, lambda_ in zip(users, lambdas):
+            self.add_parameters(user, lambda_)
 
     def DRFA_add_sample_parameters(self, user, ratio):
         model = self.sample_model.parameters()
@@ -167,7 +177,8 @@ class FedDRFA(Server):
                 loss = user.train(self.local_epochs)
                 losses.append(loss.data.item())
             # Aggregate W^{s+1}
-            self.DRFA_aggregate_parameters(self.selected_users)
+            # self.DRFA_aggregate_parameters(self.selected_users)
+            self.DRFA_aggregate_parameters_with_lambdas(self.selected_users, self.lambdas) # aggregate with lambdas values
             # Aggregate W^{t'}
             self.DRFA_aggregate_sample_parameters(self.selected_users)
 
@@ -187,10 +198,18 @@ class FedDRFA(Server):
             for idx in range(len(self.lambdas)):
                 self.lambdas[idx] += self.learning_rate_lambda * losses[idx] * 1.0 / self.sub_users
 
+            self.lambdas = self.project(self.lambdas)
+            # Avoid probability 0
+            self.lambdas = np.asarray(self.lambdas)
+            lambdas_zeros = self.lambdas <= 1e-3
+            # print(lambdas_zeros.sum())
+            if lambdas_zeros.sum() > 0:
+                self.lambdas[lambdas_zeros] = 1e-3
+                self.lambdas /= self.lambdas.sum()
             # Averaging model
             for server_param, resulting_model_param in zip(self.model.parameters(), self.resulting_model.parameters()):
                 resulting_model_param.data = (resulting_model_param.data*glob_iter + server_param.data) * 1.0 / (glob_iter + 1)           
-                
+
         # Distribute the final model to all users    
         print(f"-----Testing on final model-----")
         for server_param, resulting_model_param in zip(self.model.parameters(), self.resulting_model.parameters()):
@@ -199,6 +218,9 @@ class FedDRFA(Server):
                 print(server_param.data)
         self.send_parameters()
         self.evaluate()
-
+        if(self.robust > 0):
+            self.adv_users = self.select_users(glob_iter, self.robust)
+            self.evaluate_robust('pgd', self.adv_option)
+            
         self.save_results()
         self.save_model()
