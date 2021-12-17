@@ -24,7 +24,7 @@ class FedDRFA(Server):
         # Initialize lambdas
         lamdas_length = int(num_users*sub_users)
         self.lambdas = np.ones(lamdas_length) * 1.0 /(lamdas_length)  # Initialize lambdas_0
-        self.learning_rate_lambda = 0.001
+        self.learning_rate_lambda = 0.1
 
         if(dataset[0] == "Cifar10"):
             self.adv_option = [8/255,2/255,10]
@@ -70,15 +70,15 @@ class FedDRFA(Server):
         # Broadcast w
         for user in self.users:
             user.set_parameters(self.model)
-        if(self.target_domain):
-            self.target_domain.set_parameters(self.model)
-    
+        # if(self.target_domain):
+        #     self.target_domain.set_parameters(self.model)
+
     def send_sample_parameters(self, users):
         assert (users is not None and len(users) > 0)
         for user in self.users:
             user.set_parameters(self.sample_model)
-        if(self.target_domain):
-            self.target_domain.set_parameters(self.sample_model)
+        # if(self.target_domain):
+        #     self.target_domain.set_parameters(self.sample_model)
 
     def DRFA_aggregate_parameters(self, users):
         assert (users is not None and len(users) > 0)
@@ -103,14 +103,13 @@ class FedDRFA(Server):
             self.add_parameters(user, lambda_)
 
     def DRFA_add_sample_parameters(self, user, ratio):
-        model = self.sample_model.parameters()
-        for server_param, user_param in zip(self.model.parameters(), user.get_sample_parameters()):
+        for server_param, user_param in zip(self.sample_model.parameters(), user.get_sample_parameters()):
             server_param.data = server_param.data + user_param.data.clone() * ratio
 
     def DRFA_aggregate_sample_parameters(self, users):
         assert (users is not None and len(users) > 0)
 
-        for param in self.model.parameters():
+        for param in self.sample_model.parameters():
             param.data = torch.zeros_like(param.data)
 
         total_users = 0
@@ -147,6 +146,7 @@ class FedDRFA(Server):
 
         # Training for clients
         for glob_iter in range(self.num_glob_iters):
+            self.learning_rate_lambda *= 0.9 # learning rate decay
             losses = []
             if(self.experiment):
                 self.experiment.set_epoch( glob_iter + 1)
@@ -158,7 +158,7 @@ class FedDRFA(Server):
             # Select subset of user for training
             self.selected_users = self.select_users(glob_iter, self.sub_users)
 
-            # Broadcast w_s and t' to all clients
+            # Broadcast w_s and t' to selected clients
             self.send_data_selected_users(self.selected_users)
 
             # Evaluate model each interation
@@ -179,6 +179,7 @@ class FedDRFA(Server):
             # Aggregate W^{s+1}
             # self.DRFA_aggregate_parameters(self.selected_users)
             self.DRFA_aggregate_parameters_with_lambdas(self.selected_users, self.lambdas) # aggregate with lambdas values
+
             # Aggregate W^{t'}
             self.DRFA_aggregate_sample_parameters(self.selected_users)
 
@@ -196,9 +197,11 @@ class FedDRFA(Server):
 
             # Gradient ascent for finding lamdas
             for idx in range(len(self.lambdas)):
-                self.lambdas[idx] += self.learning_rate_lambda * losses[idx] * 1.0 / self.sub_users
+                self.lambdas[idx] += self.learning_rate_lambda * losses[idx] * 1.0 / self.sub_users * self.local_epochs
 
+            print(f"lambdas before projection: {self.lambdas}")
             self.lambdas = self.project(self.lambdas)
+            print(f"lambdas after projection: {self.lambdas}")
             # Avoid probability 0
             self.lambdas = np.asarray(self.lambdas)
             lambdas_zeros = self.lambdas <= 1e-3
