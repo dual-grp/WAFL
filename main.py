@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from comet_ml import Experiment
 from FLAlgorithms.servers.serveravg import FedAvg
+from FLAlgorithms.servers.serverDRFA import FedDRFA
 from FLAlgorithms.servers.serverAFL import FedAFL
 from FLAlgorithms.servers.serverPGD import FedPGD
 from FLAlgorithms.servers.serverFGSM import FedFGSM
@@ -39,7 +40,12 @@ def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamm
             if(commet):
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
             server = FedAFL(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, K, i)
-                
+        
+        elif(algorithm == "FedDRFA"):
+            if(commet):
+                experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
+            server = FedDRFA(experiment, device, domain_data, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_user, numusers, K, i)
+
         elif(algorithm == "FedPGD"):
             if(commet):
                 experiment.set_name(dataset[0] + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_"+ str(local_epochs) + "_"+ str(numusers))
