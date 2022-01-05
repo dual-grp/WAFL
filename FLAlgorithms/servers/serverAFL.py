@@ -10,7 +10,7 @@ import copy
 # Implementation for FedAvg Server
 
 AFL = True 
-AFL_GRAD = True
+AFL_GRAD = False
 CHECK_AVG_PARAM = False
 
 class FedAFL(Server):
@@ -18,15 +18,6 @@ class FedAFL(Server):
         super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, robust, gamma, num_glob_iters,local_epochs, sub_users, num_users, times)
 
         # Initialize data for all  users
-        #if(num_users == 1):
-        #    i = 0
-        #    train , test = dataset[2][i]
-        #    user = UserAVG(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs)
-        #    self.target_domain = user
-        #    user.set_target()
-        #    self.users.append(user)
-        #    self.total_train_samples += user.train_samples
-        #    return
         if(dataset[0] == "Cifar10"):
             self.adv_option = [8/255,2/255,10]
         elif(dataset[0] == "Mnist"):
@@ -136,18 +127,9 @@ class FedAFL(Server):
                 for idx in range(len(self.lambdas)):
                     self.lambdas[idx] += self.learning_rate_lambda * losses[idx]
                 # Project lambdas
-                # print(f"lambdas before projection: {self.lambdas}")
-                # print(f"Type of lamdas before project: {type(self.lambdas)} -- len: {len(self.lambdas)}")
                 self.lambdas = self.project(self.lambdas)
-                # print(f"lambdas after projection: {self.lambdas}")
-                # print(f"Type of lamdas after project: {type(self.lambdas)} -- len: {len(self.lambdas)}")
                 # Avoid probability 0
                 self.lambdas = np.asarray(self.lambdas)
-                lambdas_zeros = self.lambdas <= 1e-3
-                # print(lambdas_zeros.sum())
-                if lambdas_zeros.sum() > 0:
-                    self.lambdas[lambdas_zeros] = 1e-3
-                    self.lambdas /= self.lambdas.sum()
             else:
                 # FedAvg
                 self.aggregate_parameters(self.selected_users)

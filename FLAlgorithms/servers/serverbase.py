@@ -103,9 +103,9 @@ class Server:
         total_weight = 0 
         for lambda_ in lambdas:
             total_weight += lambda_ # Sumation over all lambda values
-        print(f"total_weight: {total_weight}")
+        # print(f"total_weight: {total_weight}")
         for user, lambda_ in zip(users, lambdas):
-            print(f"lambdas_ratio: {round(lambda_ * 1.0 / total_weight, 3)} | data ratio: {round(user.train_samples / total_train, 3)}")
+            # print(f"lambdas_ratio: {round(lambda_ * 1.0 / total_weight, 3)} | data ratio: {round(user.train_samples / total_train, 3)}")
             self.add_parameters(user, lambda_ * 1.0 / total_weight)
 
     def AFL_aggregate_grads(self, users, lambdas):

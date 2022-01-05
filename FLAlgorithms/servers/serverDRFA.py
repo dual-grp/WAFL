@@ -9,14 +9,14 @@ import numpy as np
 import copy
 
 # Implementation for FedDRFA Server
-CHECK_AVG_PARAM = True
+CHECK_AVG_PARAM = False
 
 class FedDRFA(Server):
     def __init__(self, experiment, device, dataset,algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users, K,  times):
         super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, robust, gamma, num_glob_iters,local_epochs, sub_users, num_users, times)
 
         self.sampling_size = sub_users # Fraction to select sampling size * num_users --- m in range [0; num_users]
-        self.sample_number = 1 # A sample number -- t' will be selected randomly in range: [1; local_epochs -1]
+        self.sample_number = 1 # A sample number -- t' will be selected randomly in range: [1; local_epochs]
 
         # Grads
         self.grad_learning_rate = learning_rate
@@ -24,8 +24,8 @@ class FedDRFA(Server):
         # Initialize lambdas
         lamdas_length = int(num_users*sub_users)
         self.lambdas = np.ones(lamdas_length) * 1.0 /(lamdas_length)  # Initialize lambdas_0
-        self.learning_rate_lambda = 0.1
-
+        self.learning_rate_lambda = 0.001
+        print(f"learning rate for lambdas: {self.learning_rate_lambda}")
         if(dataset[0] == "Cifar10"):
             self.adv_option = [8/255,2/255,10]
         elif(dataset[0] == "Mnist"):
@@ -97,7 +97,7 @@ class FedDRFA(Server):
             param.data = torch.zeros_like(param.data)
         total_train = 0
 
-        print(f"lambdas: {lambdas}")
+        # print(f"lambdas: {lambdas}")
 
         for user, lambda_ in zip(users, lambdas):
             self.add_parameters(user, lambda_)
@@ -120,9 +120,9 @@ class FedDRFA(Server):
             self.DRFA_add_sample_parameters(user, 1.0 / total_users)
 
     def project(self, y):
-        ''' algorithm comes from:
-        https://arxiv.org/pdf/1309.1541.pdf
-        '''
+        # ''' algorithm comes from:
+        # https://arxiv.org/pdf/1309.1541.pdf
+        # '''
         if np.sum(y) <=1 and np.alltrue(y >= 0):
             return y
         u = sorted(y, reverse=True)
@@ -134,7 +134,7 @@ class FedDRFA(Server):
         lambda_ = (1.0/rho) * (1-np.sum(np.asarray(u)[:rho]))
         for i in range(len(y)):
             x.append(max(y[i]+lambda_, 0))
-        return x         
+        return x       
 
     def train(self):
         # Assign all values of  models = 0
@@ -146,7 +146,7 @@ class FedDRFA(Server):
 
         # Training for clients
         for glob_iter in range(self.num_glob_iters):
-            self.learning_rate_lambda *= 0.9 # learning rate decay
+            # self.learning_rate_lambda *= 0.9 # learning rate decay
             losses = []
             if(self.experiment):
                 self.experiment.set_epoch( glob_iter + 1)
@@ -199,9 +199,9 @@ class FedDRFA(Server):
             for idx in range(len(self.lambdas)):
                 self.lambdas[idx] += self.learning_rate_lambda * losses[idx] * 1.0 / self.sub_users * self.local_epochs
 
-            print(f"lambdas before projection: {self.lambdas}")
+            # print(f"lambdas before projection: {self.lambdas}")
             self.lambdas = self.project(self.lambdas)
-            print(f"lambdas after projection: {self.lambdas}")
+            # print(f"lambdas after projection: {self.lambdas}")
             # Avoid probability 0
             self.lambdas = np.asarray(self.lambdas)
             lambdas_zeros = self.lambdas <= 1e-3

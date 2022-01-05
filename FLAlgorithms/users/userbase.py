@@ -15,7 +15,7 @@ class User:
         # from fedprox
         self.device = device
         self.model = copy.deepcopy(model)
-        self.user_sample_model = copy.deepcopy(model)
+        self.user_sample_model = copy.deepcopy(model) # variable to store sample model from user
         self.id = id  # integer
         self.train_samples = len(train_data)
         self.test_samples = len(test_data)
