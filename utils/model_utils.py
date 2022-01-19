@@ -324,13 +324,13 @@ base_dir = './data'
 
 def dataset_read(domain_name):
     if domain_name == 'svhn':
-        train, test = load_svhn()
+        train, test = load_svhn_2(0,0)
     elif domain_name == 'mnist':
-        train, test = load_mnist()
+        train, test = load_mnist_2(0,0)
     elif domain_name == 'usps':
-        train, test = load_usps()
+        train, test = load_usps_2()
     elif domain_name == 'mnistm':
-        train, test = load_mnistm()
+        train, test = load_mnistm_2(0,0)
     elif domain_name == 'synth':
         train, test = load_syntraffic()
     elif domain_name == 'gtsrb':
@@ -386,8 +386,8 @@ def load_amazon():
     return train_data, test_data
 
 def load_svhn():
-    svhn_train = loadmat(base_dir + '/fiveDigit/svhn_train_28x28.mat')
-    svhn_test = loadmat(base_dir + '/fiveDigit/svhn_test_28x28.mat')
+    svhn_train = loadmat(base_dir + '/msda/svhn_train_28x28.mat')
+    svhn_test = loadmat(base_dir + '/msda/svhn_test_28x28.mat')
 
     svhn_train_im = svhn_train['X']
     svhn_train_im = np.array(svhn_train_im.transpose(3, 2, 0, 1).astype(np.float32), dtype=np.float32).reshape(-1, 2352)
@@ -420,7 +420,7 @@ def load_svhn():
     return train_data, test_data
 
 def load_mnist(scale=True, usps=False, all_use=False):
-    mnist_data = loadmat(base_dir + '/fiveDigit/mnist_data.mat')
+    mnist_data = loadmat(base_dir + '/msda/mnist_data.mat')
     mnist_train = np.array(mnist_data['train_28'], dtype=np.float32).reshape(-1, 784)
     mnist_test =  np.array(mnist_data['test_28'], dtype=np.float32).reshape(-1, 784)
     mnist_all =     np.concatenate((mnist_train, mnist_test), axis=0)
@@ -462,7 +462,7 @@ def load_mnist(scale=True, usps=False, all_use=False):
     return train_data, test_data
 
 def load_usps():
-    dataset  = loadmat(base_dir + '/fiveDigit/usps_28x28.mat')
+    dataset  = loadmat(base_dir + '/msda/usps_28x28.mat')
     data_set = dataset['dataset']
     img_train = data_set[0][0]
     label_train = data_set[0][1]
@@ -492,7 +492,7 @@ def load_usps():
     return train_data, test_data
 
 def load_mnistm(scale=True, usps=False, all_use=False):
-    mnistm_data = loadmat(base_dir + '/fiveDigit/mnistm_with_label.mat')
+    mnistm_data = loadmat(base_dir + '/msda/mnistm_with_label.mat')
     mnistm_train =  np.array(mnistm_data['train'], dtype=np.float32).reshape(-1, 2352)
     mnistm_test =  np.array(mnistm_data['test'], dtype=np.float32).reshape(-1, 2352)
     mnistm_all =     np.concatenate((mnistm_train, mnistm_test), axis=0)
@@ -531,8 +531,8 @@ def load_mnistm(scale=True, usps=False, all_use=False):
     return train_data, test_data
 
 def load_syn(scale=True, usps=False, all_use=False):
-    syn_train = loadmat(base_dir + '/fiveDigit/synth_train_28x28.mat')
-    syn_test = loadmat(base_dir + '/fiveDigit/synth_test_28x28.mat')
+    syn_train = loadmat(base_dir + '/msda/synth_train_28x28.mat')
+    syn_test = loadmat(base_dir + '/msda/synth_test_28x28.mat')
 
     syn_train_im = syn_train['X']
     syn_train_im = np.array(syn_train_im.transpose(3, 2, 0, 1).astype(np.float32), dtype=np.float32).reshape(-1, 2352)
@@ -603,6 +603,171 @@ def dense_to_one_hot(labels_dense):
         else:
             labels_one_hot[i] = t
     return labels_one_hot
+
+##### 
+def load_mnist_2(num_train, num_test):
+
+    print("-- loading mnist data")
+
+    with open(base_dir + '/msda/mnist.pkl', "br") as fh:
+      data = pickle.load(fh)
+
+    train_imgs = data[0]
+    test_imgs = data[1]
+    train_labels = data[2]
+    test_labels = data[3]
+
+    mnist_train = [x.reshape(28,28,1).astype(np.float32) for x in train_imgs]
+    mnist_data_train = np.concatenate([mnist_train, mnist_train, mnist_train], 3)
+    mnist_data_train = mnist_data_train.transpose(0, 3, 1, 2)
+    mnist_train_labels = train_labels.T[0].astype(int)
+    #mnistm_train = [(x, y) for x, y in zip(train_data_2, train_labels.T[0])]
+
+    mnist_test = [x.reshape(28,28,1).astype(np.float32) for x in test_imgs]
+    mnist_data_test = np.concatenate([mnist_test, mnist_test, mnist_test], 3)
+    mnist_data_test = mnist_data_test.transpose(0, 3, 1, 2)
+    mnist_test_labels = test_labels.T[0].astype(int)
+
+
+    if (num_train != 0 and num_test != 0):
+      mnist_data_train = mnist_data_train[:num_train]
+      mnist_train_labels = mnist_train_labels[:num_train]
+
+      mnist_data_test = mnist_data_test[:num_test]
+      mnist_test_labels = mnist_test_labels[:num_test]
+
+    #mnistm_test = [(x, y) for x, y in zip(test_data_2, test_labels.T[0])]
+    print_image_data_stats(mnist_data_train, mnist_train_labels, mnist_data_test, mnist_test_labels)
+
+
+    train_data = [(x, y) for x, y in zip(mnist_data_train, mnist_train_labels)]
+    test_data = [(x, y) for x, y in zip(mnist_data_test, mnist_test_labels)] 
+
+    return train_data, test_data
+
+def load_mnistm_2(num_train, num_test):
+    print("-- loading mnist-m data")
+
+    mnistm_train = loadmat(base_dir + '/msda/mnistm_train.mat')
+    mnistm_test = loadmat(base_dir + '/msda/mnistm_test.mat')
+
+    mnistm_train_data = mnistm_train['train_data']
+    mnistm_test_data = mnistm_test['test_data']
+
+    mnistm_train_data = mnistm_train_data.transpose(0, 3, 1, 2).astype(np.float32)
+    mnistm_test_data = mnistm_test_data.transpose(0, 3, 1, 2).astype(np.float32)
+
+    # get labels
+    mnistm_labels_train = mnistm_train['train_label']
+    mnistm_labels_test = mnistm_test['test_label']
+
+    # random sample 25000 from train dataset and random sample 9000 from test dataset
+    inds = np.random.permutation(mnistm_train_data.shape[0])
+
+    train_label = mnistm_labels_train.reshape(1,-1)[0]
+
+    mnistm_train_data = mnistm_train_data[inds]
+    train_label = train_label[inds]
+
+    test_label = mnistm_labels_test.reshape(1,-1)[0]
+    '''
+    print('mnist_m train X shape->',  mnistm_train_data.shape)
+    print('mnist_m train y shape->',  train_label.shape)
+    print('mnist_m test X shape->',  mnistm_test_data.shape)
+    print('mnist_m test y shape->', test_label.shape)
+    '''
+
+    if (num_train != 0 and num_test != 0):
+      mnistm_train_data = mnistm_train_data[:num_train]
+      train_label = train_label[:num_train]
+
+      mnistm_test_data = mnistm_test_data[:num_test]
+      test_label = test_label[:num_test]
+
+    print_image_data_stats(mnistm_train_data, train_label, mnistm_test_data, test_label)
+
+    train_data = [(x, y) for x, y in zip(mnistm_train_data, train_label)]
+    test_data = [(x, y) for x, y in zip(mnistm_test_data, test_label)]
+
+    return train_data, test_data
+
+
+def load_usps_2():
+    print("-- loading usps data")
+    
+    dataset  = loadmat(base_dir + '/msda/usps_28x28.mat')
+    data_set = dataset['dataset']
+    img_train = data_set[0][0]
+    label_train = data_set[0][1]
+    img_test = data_set[1][0]
+    label_test = data_set[1][1]
+    inds = np.random.permutation(img_train.shape[0])
+    img_train = img_train[inds]
+    label_train = label_train[inds]
+
+    frac = 0.99/255
+    img_train *= 255
+    img_train = img_train * frac + 0.01
+
+    img_test *= 255
+    img_test = img_test * frac + 0.01
+
+    label_train = label_train.reshape(-1)
+    label_test = label_test.reshape(-1)
+
+    img_train = np.concatenate([ img_train, img_train, img_train], 1)
+    img_test = np.concatenate([img_test, img_test,img_test],1)
+    '''
+    print('usps train X shape->',  img_train.shape)
+    print('usps train y shape->',  label_train.shape)
+    print('usps test X shape->',  img_test.shape)
+    print('usps test y shape->', label_test.shape)
+    '''
+
+    print_image_data_stats(img_train, label_train, img_test, label_test)
+
+    train_data = [(x, y) for x, y in zip(img_train, label_train)]
+    test_data = [(x, y) for x, y in zip(img_test, label_test)]
+    return train_data, test_data
+
+def load_svhn_2(num_train, num_test):
+
+    print("-- loading svhn data")
+
+    svhn_train = loadmat(base_dir + '/msda/svhn_train_28x28.mat')
+    svhn_test = loadmat(base_dir + '/msda/svhn_test_28x28.mat')
+
+    svhn_train_im = svhn_train['X']
+    svhn_train_im = np.array(svhn_train_im.transpose(3, 2, 0, 1).astype(np.float32), dtype=np.float32).reshape(-1, 2352)
+    svhn_label = dense_to_one_hot(svhn_train['y'])
+
+    svhn_test_im = svhn_test['X']
+    svhn_test_im = np.array(svhn_test_im.transpose(3, 2, 0, 1).astype(np.float32), dtype=np.float32).reshape(-1, 2352)
+    svhn_label_test = dense_to_one_hot(svhn_test['y'])
+
+    svhn_all =     np.concatenate((svhn_train_im, svhn_test_im), axis=0)
+    mu = np.mean(svhn_all, 0)
+    sigma = np.std(svhn_all, 0)
+    svhn_train_im = (svhn_train_im.astype(np.float32) - mu)/(sigma+0.001)
+    svhn_test_im = (svhn_test_im.astype(np.float32) - mu)/(sigma+0.001)
+    svhn_train_im = svhn_train_im.reshape(-1, 3, 28, 28).astype(np.float32)
+    svhn_test_im = svhn_test_im.reshape(-1, 3, 28, 28).astype(np.float32)
+
+    if (num_train != 0 and num_test != 0):
+        svhn_train_im = svhn_train_im[:num_train]
+        svhn_label = svhn_label[:num_train]
+        svhn_test_im = svhn_test_im[:num_test]
+        svhn_label_test = svhn_label_test[:num_test]
+
+    print_image_data_stats(svhn_train_im, svhn_label, svhn_test_im, svhn_label_test)
+
+    train_data = [(x, y) for x, y in zip(svhn_train_im, svhn_label)]
+    test_data = [(x, y) for x, y in zip(svhn_test_im, svhn_label_test)]
+
+    return train_data, test_data
+
+######
+
 
 #########################################
 ####### Domain Adaptation Utils #########
@@ -876,6 +1041,24 @@ def read_domain_data(dataset):
 
         return data_all
     
+    elif(dataset == "msda1"):
+        domain_all = ['mnist', 'svhn', 'usps']
+        for domain_name in domain_all:
+            data_all.append(dataset_read(domain_name))
+        return data_all
+
+    elif(dataset == "msda2"):
+        domain_all = ['mnist', 'usps', 'svhn']
+        for domain_name in domain_all:
+            data_all.append(dataset_read(domain_name))
+        return data_all
+
+    elif(dataset == "msda3"):
+        domain_all = ['svhn', 'usps', 'mnist']
+        for domain_name in domain_all:
+            data_all.append(dataset_read(domain_name))
+        return data_all
+
     #########################
     ##### Original Code #####
     #########################

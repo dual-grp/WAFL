@@ -6,7 +6,7 @@ import argparse
 
 def args_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, default="Mnist", choices=["fiveDigit", "Emnist", "Mnist", "Cifar10", "Office_Caltech10", "mnist2mnistm", "mnist2usps", "mnistm2mnist", "mnistm2usps","usps2mnist","usps2mnistm"])
+    parser.add_argument("--dataset", type=str, default="Mnist", choices=["fiveDigit", "Emnist", "Mnist", "Cifar10", "Office_Caltech10", "mnist2mnistm", "mnist2usps", "mnistm2mnist", "mnistm2usps","usps2mnist","usps2mnistm","msda1","msda2","msda3"])
     parser.add_argument("--target", type=int, default=-1, help="index of target domain in set of data, choose the last one" )
     parser.add_argument("--model", type=str, default="mclr", choices=["dnn", "mclr", "cnn"])
     parser.add_argument("--batch_size", type=int, default=64)
