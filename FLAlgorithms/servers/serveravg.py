@@ -9,6 +9,9 @@ import numpy as np
 import copy
 # Implementation for FedAvg Server
 
+# AFL = False 
+# AFL_GRAD = True
+
 class FedAvg(Server):
     def __init__(self, experiment, device, dataset,algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users, K,  times):
         super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, robust, gamma, num_glob_iters,local_epochs, sub_users, num_users, times)
@@ -33,7 +36,7 @@ class FedAvg(Server):
             self.adv_option = [0,0,0]
             
         self.target_domain = None
-        
+
         for i in range(num_users):
             train , test = dataset[2][i]
             user = UserAVG(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs, K)
@@ -57,10 +60,15 @@ class FedAvg(Server):
             else:
                 grads.append(param.grad)
         for user in self.users:
-            user.set_grads(grads)
+            user.set_grads(grads) 
 
     def train(self):
+        # Assign all values of resulting model = 0
+        for resulting_model_param in self.resulting_model.parameters():
+            resulting_model_param.data = torch.zeros_like(resulting_model_param.data)
+        # Training for clients
         for glob_iter in range(self.num_glob_iters):
+            losses = []
             if(self.experiment):
                 self.experiment.set_epoch( glob_iter + 1)
             print("-------------Round number: FedAvg", glob_iter, " -------------")
@@ -81,9 +89,9 @@ class FedAvg(Server):
             # Select subset of user for training
             self.selected_users = self.select_users(glob_iter, self.sub_users)
             for user in self.selected_users:
-                user.train(self.local_epochs)
+                loss = user.train(self.local_epochs)
 
             self.aggregate_parameters(self.selected_users)
-            
+        
         self.save_results()
         self.save_model()

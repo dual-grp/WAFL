@@ -3,21 +3,23 @@ import torch.nn as nn
 import torch.nn.functional as F
 from FLAlgorithms.users.userbase import User
 import numpy as np
-
 # Implementation for FedAvg clients
+
 FULL_BATCH = False
 
-class UserAVG(User):
+class UserAFL(User):
     def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, robust, gamma, local_epochs, K):
         super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, robust, gamma, local_epochs)
-
+        step_size = 60
+        gamma = 1 # No learning rate decay, choose gamma in [0;1) for learning rate decay
         self.loss = nn.CrossEntropyLoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        print(f"User Avg with FULL_BATCH = {FULL_BATCH}")
-
+        self.schedule_optimizer = torch.optim.lr_scheduler.StepLR(optimizer=self.optimizer, step_size=step_size, gamma=gamma)
+        print(f"step_size: {step_size}, gamma: {gamma}, full batch: {FULL_BATCH}")
     def train(self, epochs):
-        # This is for FedAvg
+        # print("Training in userAFL!")
         LOSS = 0
+        iter_num = 0
         self.model.train()
         if FULL_BATCH == True:
             for epoch in range(1, self.local_epochs + 1):
@@ -27,9 +29,12 @@ class UserAVG(User):
                     loss = self.loss(self.model(X), y)
                     loss.backward()
                     self.optimizer.step()
+                    self.schedule_optimizer.step()
                     LOSS += loss
-            return LOSS
-        else: # Running with minibatch
+                    iter_num += 1
+            # return LOSS, loss # return last loss value
+            return LOSS, LOSS * 1.0 / iter_num
+        else: # Running model with minibatch
             for epoch in range(1, self.local_epochs + 1):
                 for X,y in self.trainloader:
                     X, y = X.to(self.device), y.long().to(self.device)
@@ -37,5 +42,7 @@ class UserAVG(User):
                     loss = self.loss(self.model(X), y)
                     loss.backward()
                     self.optimizer.step()
+                    self.schedule_optimizer.step()
                     LOSS += loss
-            return LOSS
+            return LOSS, loss # return last loss value
+
