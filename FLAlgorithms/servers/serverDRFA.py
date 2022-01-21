@@ -22,7 +22,11 @@ class FedDRFA(Server):
         self.grad_learning_rate = learning_rate
 
         # Initialize lambdas
-        lamdas_length = int(num_users*sub_users)
+        if(self.robust < 0): # running on domain adaptation. the last user will be the target distribution to test
+            lamdas_length = int(num_users*sub_users) - 1
+        else:
+            lamdas_length = int(num_users*sub_users) # all clients will be involved in selection for training
+
         self.lambdas = np.ones(lamdas_length) * 1.0 /(lamdas_length)  # Initialize lambdas_0
         self.learning_rate_lambda = 0.001
         print(f"learning rate for lambdas: {self.learning_rate_lambda}")
@@ -47,7 +51,7 @@ class FedDRFA(Server):
                     continue
             self.users.append(user)
             self.total_train_samples += user.train_samples
-            
+        
         print("Number of users / total users:",int(sub_users * num_users), " / " ,num_users)
         print("Finished creating FedDRFA server.")
 
@@ -174,7 +178,7 @@ class FedDRFA(Server):
 
             # Select subset of user for training
             for user in self.selected_users:
-                loss = user.train(self.local_epochs)
+                _,loss = user.train(self.local_epochs)
                 losses.append(loss.data.item())
             # Aggregate W^{s+1}
             # self.DRFA_aggregate_parameters(self.selected_users)
@@ -192,7 +196,7 @@ class FedDRFA(Server):
 
             # Computing loss in selected users
             for user in self.selected_users:
-                loss = user.train(1)
+                _,loss = user.train(self.local_epochs)
                 losses.append(loss.data.item()) # gathering loss from users
 
             # Gradient ascent for finding lamdas
@@ -224,6 +228,7 @@ class FedDRFA(Server):
         if(self.robust > 0):
             self.adv_users = self.select_users(glob_iter, self.robust)
             self.evaluate_robust('pgd', self.adv_option)
-            
+        if(self.robust < 0):
+            self.evaluate_on_target()
         self.save_results()
         self.save_model()

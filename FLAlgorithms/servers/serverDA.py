@@ -160,6 +160,6 @@ class DA(Server):
                 loss = user.train(self.local_epochs)
 
             self.DA_aggregate_parameters_with_lambdas(self.selected_users, lambdas_star)
-        
+
         self.save_results()
         self.save_model()

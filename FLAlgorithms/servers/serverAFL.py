@@ -32,8 +32,13 @@ class FedAFL(Server):
         # self.resulting_model = copy.deepcopy(model)
         # Grads
         self.grad_learning_rate = learning_rate
+        
         # Initialize lambdas
-        lamdas_length = int(num_users*sub_users)
+        if(self.robust < 0): # running on domain adaptation. the last user will be the target distribution to test
+            lamdas_length = int(num_users*sub_users) - 1
+        else:
+            lamdas_length = int(num_users*sub_users) # all clients will be involved in selection for training
+
         self.lambdas = np.ones(lamdas_length) * 1.0 /(lamdas_length)
         self.learning_rate_lambda = 0.001
         print(f"lambdas learning rate: {self.learning_rate_lambda}")
@@ -154,6 +159,7 @@ class FedAFL(Server):
         if(self.robust > 0):
             self.adv_users = self.select_users(glob_iter, self.robust)
             self.evaluate_robust('pgd', self.adv_option)
-        
+        if(self.robust < 0):
+            self.evaluate_on_target()
         self.save_results()
         self.save_model()

@@ -54,6 +54,6 @@ class UserDRFA(User):
                     count += 1
                 if self.sample_number == epoch:
                     self.user_sample_model = copy.deepcopy(self.model) # return W_{i}^{t'}
-            return LOSS
+            return LOSS, loss
     
 
