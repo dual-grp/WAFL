@@ -157,7 +157,7 @@ class FedDRFA(Server):
             print("-------------Round number: FedDRFA", glob_iter, " -------------")
 
             # Create a random sample number
-            self.sample_number = torch.randint(low=1,high=(self.local_epochs + 1),size=(1,)).item() # t'
+            self.sample_number = torch.randint(low=0,high=(self.local_epochs),size=(1,)).item() # t'
 
             # Select subset of user for training
             self.selected_users = self.select_users(glob_iter, self.sub_users)
