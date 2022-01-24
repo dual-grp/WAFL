@@ -139,7 +139,7 @@ class DA(Server):
             losses = []
             if(self.experiment):
                 self.experiment.set_epoch( glob_iter + 1)
-            print("-------------Round number: DA with lambdas", glob_iter, " -------------")
+            print("-------------Round number: DA with lambdas ", glob_iter, " -------------")
 
             self.send_parameters()
 

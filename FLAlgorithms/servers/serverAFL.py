@@ -17,11 +17,14 @@ class FedAFL(Server):
     def __init__(self, experiment, device, dataset,algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users, K,  times):
         super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, robust, gamma, num_glob_iters,local_epochs, sub_users, num_users, times)
 
+        # Grads
+        self.grad_learning_rate = learning_rate
         # Initialize data for all  users
         if(dataset[0] == "Cifar10"):
             self.adv_option = [8/255,2/255,10]
         elif(dataset[0] == "Mnist"):
             self.adv_option = [0.3,0.01,40]
+            learning_rate = 0.01
         elif(dataset[0] == "Emnist"):
             self.adv_option = [0.3,0.01,40]
         else:
@@ -30,8 +33,6 @@ class FedAFL(Server):
         self.target_domain = None
         # Averaged model
         # self.resulting_model = copy.deepcopy(model)
-        # Grads
-        self.grad_learning_rate = learning_rate
         
         # Initialize lambdas
         if(self.robust < 0): # running on domain adaptation. the last user will be the target distribution to test

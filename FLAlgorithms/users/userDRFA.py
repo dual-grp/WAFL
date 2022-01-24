@@ -17,7 +17,7 @@ class UserDRFA(User):
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
         self.schedule_optimizer = torch.optim.lr_scheduler.StepLR(optimizer=self.optimizer, step_size=step_size, gamma=gamma)
         self.sample_number = 1 # Initialize the sample number, this number will be randomly chosed each iteration
-        print(f"step_size: {step_size}, gamma: {gamma}, learning_rate: {self.learning_rate}")
+        # print(f"step_size: {step_size}, gamma: {gamma}, learning_rate: {self.learning_rate}")
     def get_sample_parameters(self):
         for param in self.user_sample_model.parameters():
             param.detach()

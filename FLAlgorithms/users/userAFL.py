@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from FLAlgorithms.users.userbase import User
 import numpy as np
-# Implementation for FedAvg clients
+# Implementation for AFL clients
 
 FULL_BATCH = False
 
@@ -15,7 +15,7 @@ class UserAFL(User):
         self.loss = nn.CrossEntropyLoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
         self.schedule_optimizer = torch.optim.lr_scheduler.StepLR(optimizer=self.optimizer, step_size=step_size, gamma=gamma)
-        print(f"step_size: {step_size}, gamma: {gamma}, full batch: {FULL_BATCH}")
+        # print(f"step_size: {step_size}, gamma: {gamma}, full batch: {FULL_BATCH}")
     def train(self, epochs):
         # print("Training in userAFL!")
         LOSS = 0

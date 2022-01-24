@@ -29,11 +29,14 @@ class FedDRFA(Server):
 
         self.lambdas = np.ones(lamdas_length) * 1.0 /(lamdas_length)  # Initialize lambdas_0
         self.learning_rate_lambda = 0.001
+        
         print(f"learning rate for lambdas: {self.learning_rate_lambda}")
+        
         if(dataset[0] == "Cifar10"):
             self.adv_option = [8/255,2/255,10]
         elif(dataset[0] == "Mnist"):
             self.adv_option = [0.3,0.01,40]
+            learning_rate = 0.01
         elif(dataset[0] == "Emnist"):
             self.adv_option = [0.3,0.01,40]
         else:
@@ -51,7 +54,6 @@ class FedDRFA(Server):
                     continue
             self.users.append(user)
             self.total_train_samples += user.train_samples
-        
         print("Number of users / total users:",int(sub_users * num_users), " / " ,num_users)
         print("Finished creating FedDRFA server.")
 
