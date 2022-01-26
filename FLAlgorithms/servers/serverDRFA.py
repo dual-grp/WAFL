@@ -31,17 +31,16 @@ class FedDRFA(Server):
         self.learning_rate_lambda = 0.001
         
         print(f"learning rate for lambdas: {self.learning_rate_lambda}")
-        
         if(dataset[0] == "Cifar10"):
             self.adv_option = [8/255,2/255,10]
         elif(dataset[0] == "Mnist"):
             self.adv_option = [0.3,0.01,40]
-            learning_rate = 0.01
+            learning_rate *= 10
         elif(dataset[0] == "Emnist"):
             self.adv_option = [0.3,0.01,40]
         else:
             self.adv_option = [0,0,0]
-            
+
         self.target_domain = None
 
         for i in range(num_users):

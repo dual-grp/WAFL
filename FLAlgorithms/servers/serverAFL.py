@@ -19,17 +19,18 @@ class FedAFL(Server):
 
         # Grads
         self.grad_learning_rate = learning_rate
+        
         # Initialize data for all  users
         if(dataset[0] == "Cifar10"):
             self.adv_option = [8/255,2/255,10]
         elif(dataset[0] == "Mnist"):
             self.adv_option = [0.3,0.01,40]
-            learning_rate = 0.01
+            learning_rate *= 10
         elif(dataset[0] == "Emnist"):
             self.adv_option = [0.3,0.01,40]
         else:
             self.adv_option = [0,0,0]
-            
+
         self.target_domain = None
         # Averaged model
         # self.resulting_model = copy.deepcopy(model)
