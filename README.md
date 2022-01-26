@@ -121,9 +121,9 @@ Evaluate different values of robust parameter gamma on CIFAR10
  
 
 
-## Multi-Source Domain Adaptation
+# Multi-Source Domain Adaptation
    
-#### MNIST + SVHN to USPS
+## MNIST + SVHN to USPS
 <pre><code>
     python3 main.py --dataset msda1 --model mclr --batch_size 64 --learning_rate 0.01 --robust -1 --gamma 0.1 --num_global_iters 10 --local_epochs 2 --algorithm FedAvg --subusers 1 --numusers 3 --times 1
     
@@ -134,7 +134,7 @@ Evaluate different values of robust parameter gamma on CIFAR10
     python3 main.py --dataset msda1 --model mclr --batch_size 64 --learning_rate 0.01 --robust -1 --gamma 0.1 --num_global_iters 10 --local_epochs 2 --algorithm DA --subusers 1 --numusers 3 --times 1
 </code></pre>
 
-#### MNIST + USPS to SVHN
+## MNIST + USPS to SVHN
 <pre><code>
     python3 main.py --dataset msda2 --model mclr --batch_size 64 --learning_rate 0.01 --robust -1 --gamma 0.1 --num_global_iters 10 --local_epochs 2 --algorithm FedAvg --subusers 1 --numusers 3 --times 1
     
@@ -146,7 +146,7 @@ Evaluate different values of robust parameter gamma on CIFAR10
 </code></pre>
 
 
-#### SVHN + USPS to MNIST
+## SVHN + USPS to MNIST
 <pre><code>
     python3 main.py --dataset msda3 --model mclr --batch_size 64 --learning_rate 0.01 --robust -1 --gamma 0.1 --num_global_iters 10 --local_epochs 2 --algorithm FedAvg --subusers 1 --numusers 3 --times 1
     
