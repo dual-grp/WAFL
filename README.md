@@ -15,7 +15,7 @@ Authors:
 - CIFAR (20 clients): This dataset will be downloaded and generated automatically when runing algorithms.
 - Three-digit Datasets (MNIST, SVHN, USPS): A subset of Digit-Five Dataset
 
-Download Link: https://drive.google.com/drive/folders/1ltpI-OejTE__FamAHJ7a2h6QHjgvOPfk?usp=sharing
+Download Link: https://drive.google.com/drive/folders/1VNic6b4PHhBwyi5ZJfe0awaUU6HqXrXQ?usp=sharing
 
 All dataset after downloading must be stored at folder ./data
 
