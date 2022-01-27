@@ -11,7 +11,7 @@ import random
 from scipy.io import loadmat
 import sys
 import pickle
-from sklearn.datasets import fetch_mldata
+# from sklearn.datasets import fetch_mldata
 from sklearn.model_selection import train_test_split
 
 ## Ignore Warnings
