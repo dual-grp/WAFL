@@ -13,7 +13,7 @@ Authors: Anonymous
 
 Link to data folder: https://drive.google.com/drive/folders/1ltpI-OejTE__FamAHJ7a2h6QHjgvOPfk?usp=sharing
 
-Download Link: https://drive.google.com/drive/folders/1ltpI-OejTE__FamAHJ7a2h6QHjgvOPfk?usp=sharing
+Replace the `./data` directory here with the `data` folder you just downloaded from Google Drive.
 
 The datasets used in the experiments are:
 - MNIST (100 clients): Ensure that there are `json` files within `./data/Mnist/data/train` and `./data/Mnist/data/test`. Otherwise, running the following command will generate the MNIST dataset as well. <pre><code>python3 data/Mnist/generate_niid_100users.py</pre></code>
