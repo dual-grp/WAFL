@@ -18,7 +18,7 @@ class UserWAFL(User):
         for _ in range(1, self.local_epochs + 1):
             for X ,y in self.trainloader:
                 X, y = X.to(self.device), y.long().to(self.device)
-                X_adv =  self.wasssertein(X, y, alpha = alpha, num_iter = self.avd_epoch)
+                X_adv =  self.wasssertein(X, y)
                 self.optimizer.zero_grad()
                 output = self.model(X_adv)
                 loss = self.loss(output, y)
