@@ -42,7 +42,7 @@ class User:
 
         # those parameters are for persionalized federated learing.
         #self.local_model = copy.deepcopy(list(self.model.parameters()))
-
+        # self.model = self.model.to(self.device)
     def set_target(self):
         self.target = True
 
@@ -78,6 +78,7 @@ class User:
         return grads
 
     def test(self):
+        self.model = self.model.to(self.device)
         self.model.eval()
         test_acc = 0
         loss = 0

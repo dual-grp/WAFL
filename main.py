@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from comet_ml import Experiment
 from FLAlgorithms.servers.serveravg import FedAvg
-from FLAlgorithms.servers.serverDA import DA
+# from FLAlgorithms.servers.serverDA import DA
 from FLAlgorithms.servers.serverDRFA import FedDRFA
 from FLAlgorithms.servers.serverAFL import FedAFL
 from FLAlgorithms.servers.serverPGD import FedPGD
@@ -22,10 +22,12 @@ def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamm
     
     # Get device status: Check GPU or CPU
     device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
+    # device = "cpu"
     args.device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
-
-    domain_data = dataset[0], dataset[1], read_domain_data(dataset[0])
-    
+    if dataset[0] != "FeMnist":
+        domain_data = dataset[0], dataset[1], read_domain_data(dataset[0])
+    else: 
+        domain_data = dataset[0], dataset[1]
     for i in range(times):
         print("---------------Running time:------------",i)
         # Generate model

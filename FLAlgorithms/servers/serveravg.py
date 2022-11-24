@@ -5,6 +5,7 @@ import torch.multiprocessing as mp
 from FLAlgorithms.users.useravg import UserAVG
 from FLAlgorithms.servers.serverbase import Server
 from utils.model_utils import read_data, read_domain_data
+from utils.get_femnist_data import *
 import numpy as np
 import copy
 # Implementation for FedAvg Server
@@ -32,16 +33,25 @@ class FedAvg(Server):
             self.adv_option = [0.3,0.01,40]
         elif(dataset[0] == "Emnist"):
             self.adv_option = [0.3,0.01,40]
+        elif(dataset[0] == "FeMnist"):
+            self.adv_option = [0.3,0.01,40]
         else:
             self.adv_option = [0,0,0]
             
         self.target_domain = None
+        if dataset[0] == "FeMnist":
+            self.num_users = 35
+        else: 
+            self.num_users = num_users
 
-        for i in range(num_users):
-            train , test = dataset[2][i]
+        for i in range(self.num_users):
+            if dataset[0] == "FeMnist":
+                train, test = get_user_dataset(i)
+            else:
+                train , test = dataset[2][i]
             user = UserAVG(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs, K)
             if(self.robust < 0): # no robust, domain option
-                if(i == dataset[1] or (i == num_users-1 and dataset[1] < 0)):
+                if(i == dataset[1] or (i == self.num_users-1 and dataset[1] < 0)):
                     self.target_domain = user
                     user.set_target()
                     continue

@@ -51,6 +51,8 @@ def get_model(args):
         else:
             # Domain Adaptation Non-convex Model (e.g., mm->mt)
             model = CNNDA().to(args.device)
+    elif(args.model == "femnist_cnn"):
+        model = CNN_FEMNIST()
     else:
         exit('Error: unrecognized model')
     return model,args.model
