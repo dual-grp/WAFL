@@ -2,6 +2,7 @@ import torch
 import os
 import torch.multiprocessing as mp
 
+from utils.get_femnist_data import *
 from FLAlgorithms.users.userPGD import UserPGD
 from FLAlgorithms.servers.serverbase import Server
 from utils.model_utils import read_data, read_domain_data
@@ -20,6 +21,8 @@ class FedPGD(Server):
             self.adv_option = [0.3,0.01,40]
         elif(dataset[0] == "Emnist"):
             self.adv_option = [0.3,0.01,20]
+        elif(dataset[0] == "FeMnist"):
+            self.adv_option = [0.3,0.01,30]
         else:
             self.adv_option = [0,0,0]
 
@@ -35,7 +38,10 @@ class FedPGD(Server):
         #    return
         
         for i in range(num_users):
-            train , test = dataset[2][i]
+            if dataset[0] == "FeMnist":
+                train, test = get_user_dataset(i)
+            else:
+                train , test = dataset[2][i]
             user = UserPGD(device, i, train, test, model, batch_size, learning_rate, robust, gamma, local_epochs, K)
             if(self.robust < 0): # no robust, domain option
                 if(i == dataset[1] or (i == num_users-1 and dataset[1] < 0)):

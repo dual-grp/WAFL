@@ -24,6 +24,7 @@ def main(experiment, dataset, algorithm, batch_size, learning_rate, robust, gamm
     device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
     # device = "cpu"
     args.device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
+    # args.device = "cpu"
     if dataset[0] != "FeMnist":
         domain_data = dataset[0], dataset[1], read_domain_data(dataset[0])
     else: 

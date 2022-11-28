@@ -34,7 +34,7 @@ class FedAvg(Server):
         elif(dataset[0] == "Emnist"):
             self.adv_option = [0.3,0.01,40]
         elif(dataset[0] == "FeMnist"):
-            self.adv_option = [0.3,0.01,40]
+            self.adv_option = [0.3,0.01,100]
         else:
             self.adv_option = [0,0,0]
             

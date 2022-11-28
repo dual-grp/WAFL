@@ -36,7 +36,9 @@ class Server:
         #    param.grad = torch.zeros_like(param.data)
         #self.send_parameters()
         self.model = self.model.to(self.device)
-
+        self.resulting_model = self.resulting_model.to(self.device)
+        self.sample_model = self.sample_model.to(self.device)
+        
     def get_data(self,train,test):
         if(self.sub_data == 1):
             train = train[int(0.95*len(train)):]
