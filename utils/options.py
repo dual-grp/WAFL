@@ -23,5 +23,6 @@ def args_parser():
     parser.add_argument("--times", type=int, default=1, help="running time")
     parser.add_argument("--commet", type=int, default=0, help="log data to commet")
     parser.add_argument("--gpu", type=int, default=0, help="Which GPU to run the experiments")
+    parser.add_argument("--epsilon", type=float, default=0.3, help="Level of attack")
     args = parser.parse_args()
     return args

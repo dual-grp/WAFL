@@ -11,9 +11,11 @@ import copy
 # Implementation for FedAvg Server
 
 class WAFL(Server):
-    def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users, K, alpha, times):
+    def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users, K, alpha, times, epsilon):
         super().__init__(experiment, device, dataset, algorithm, model[0], batch_size, learning_rate, robust, gamma, num_glob_iters, local_epochs, sub_users, num_users, times)
-
+        
+        self.epsilon = epsilon
+    
         # Initialize adver options
         if(dataset[0] == "Cifar10"):
             self.adv_option = [8/255,2/255,10]
@@ -22,7 +24,7 @@ class WAFL(Server):
         elif(dataset[0] == "Emnist"):
             self.adv_option = [0.3,0.01,40]
         elif(dataset[0] == "FeMnist"):
-            self.adv_option = [0.3,0.01,10]
+            self.adv_option = [epsilon, 0.01,10]
         else:
             self.adv_option = [0,0,0]
 
@@ -46,7 +48,7 @@ class WAFL(Server):
                     continue
             self.users.append(user)
             self.total_train_samples += user.train_samples
-            
+        print(f"Level of attack: epsilon = {self.epsilon}") 
         print("Number of users / total users:", int(sub_users * num_users), " / " ,num_users)
         print("Finished creating WAFL server.")
 

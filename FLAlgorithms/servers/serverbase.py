@@ -275,7 +275,7 @@ class Server:
             robust_glob_acc_fgsm = np.sum(stats[2])*1.0/np.sum(stats[1])
             self.robust_glob_acc_fgsm.append(robust_glob_acc_fgsm)
             robust_glob_loss_fgsm = sum([x * y for (x, y) in zip(stats[1], stats[3])]).item() / np.sum(stats[1])
-            self.robust_glob_loss_fgsm.append(robust_glob_loss_pgd)
+            self.robust_glob_loss_fgsm.append(robust_glob_loss_fgsm)
             if(self.experiment):
                 self.experiment.log_metric("robust_acc_fgsm",robust_glob_acc_fgsm)
                 self.experiment.log_metric("robust_loss_fgsm",robust_glob_loss_fgsm)

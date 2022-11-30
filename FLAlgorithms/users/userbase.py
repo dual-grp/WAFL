@@ -176,7 +176,7 @@ class User:
         delta = torch.zeros_like(X, requires_grad=True)
         loss = self.loss(self.model(X + delta), y)
         loss.backward()
-        return X + epsilon * delta.grad.detach().sign()
+        return X + alpha*epsilon * delta.grad.detach().sign()
     
     # def pgd_l2(self, X, y, epsilon = 0.3, alpha = 0.01, num_iter = 40):
     #     delta = torch.zeros_like(X, requires_grad=True)
@@ -221,6 +221,7 @@ class User:
         for t in range(num_iter):
             loss1 = self.loss(self.model(X_adv), y)
             loss2 = 0.5 * self.gamma * torch.norm(X_adv - X)**2 / len(X_adv)
+            # loss2 = 0.5 * self.gamma * torch.norm(X_adv - X)**1 / len(X_adv)
             loss = loss1 - loss2
             loss.backward()
             X_adv.data = (X_adv.data + alpha* len(X_adv) * X_adv.grad)

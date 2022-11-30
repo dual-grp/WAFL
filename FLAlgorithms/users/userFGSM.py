@@ -10,7 +10,7 @@ class UserFGSM(User):
 
         self.loss = nn.CrossEntropyLoss() 
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        #self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        # self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
     def train(self, epochs, adv_option):
         LOSS = 0

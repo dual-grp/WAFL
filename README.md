@@ -171,7 +171,88 @@ Evaluate different values of robust parameter gamma on CIFAR10
     python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --num_global_iters 200 --local_epochs 2 --algorithm FedAvg --subusers 0.1 --numusers 35 --times 1
 </code></pre>
 
+Evaluate different levels of the on FEMNIST
+<pre><code>
+    # under 40% attack, gamma = 0.01 
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.01 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.01
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.01 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.03
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.01 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.06
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.01 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.1
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.01 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.3
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.01 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.5
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.01 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.7
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.01 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.9
 
+    # under 40% attack, gamma = 0.05 
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.05 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.01
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.05 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.03
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.05 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.06
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.05 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.1
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.05 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.3
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.05 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.5
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.05 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.7
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.05 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.9
+
+    # under 40% attack, gamma = 0.1 
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.01
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.03
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.06
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.1
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.3
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.5
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.7
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.9
+
+    # under 40% attack, gamma = 0.5 
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.01
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.03
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.06
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.1
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.3
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.5
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.7
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 0.5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.9
+
+    # under 40% attack, gamma = 1
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.01
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.03
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.06
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.1
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.3
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.5
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.7
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 1 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.9
+
+    # under 40% attack, gamma = 5
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.01
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.03
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.06
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.1
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.3
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.5
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.7
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 5 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.9
+
+    # under 40% attack, gamma = 10
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 10 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.01
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 10 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.03
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 10 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.06
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 10 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.1
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 10 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.3
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 10 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.5
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 10 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.7
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 10 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.9
+
+    # under 40% attack, gamma = 20
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 20 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.01
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 20 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.03
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 20 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.06
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 20 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.1
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 20 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.3
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 20 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.5
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 20 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.7
+    python3 main.py --dataset FeMnist --model femnist_cnn --batch_size 16 --learning_rate 0.1 --robust 0.4 --gamma 20 --alpha 0.1 --num_global_iters 200 --local_epochs 2 --algorithm WAFL --subusers 0.1 --numusers 35 --times 1 --epsilon 0.9
+</code></pre>   
 # Multi-Source Domain Adaptation
    
 ## MNIST + SVHN to USPS
